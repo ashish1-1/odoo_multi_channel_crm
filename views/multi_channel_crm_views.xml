@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="multi_channel_crm_view_tree" model="ir.ui.view">
+            <field name="name">multi.channel.crm.view.tree</field>
+            <field name="model">multi.channel.crm</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name" />
+                    <field name="channel" />
+                    <field name="state" />
+                    <field name="active" />
+                </tree>
+            </field>
+        </record>
+
+    </data>
+</odoo>
