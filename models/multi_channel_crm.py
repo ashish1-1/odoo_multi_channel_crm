@@ -1,4 +1,5 @@
 from odoo import models, fields
+import logging
 
 STATE = [
     ('draft', 'Draft'),
@@ -36,3 +37,6 @@ class MultiChannelCrm(models.Model):
     
     def set_to_draft(self):
         self.state = 'draft'
+
+    def connection(self):
+        return []

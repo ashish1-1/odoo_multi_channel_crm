@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <menuitem 
+            id="multi_channel_crm_menu"
+            name="Multi Channel CRM"
+            action="multi_channel_crm_view_action"
+            sequence="2"/>
+    </data>
+</odoo>
