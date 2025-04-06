@@ -20,5 +20,20 @@
                 groups="base.group_no_one"
                 parent="multi_channel_crm_menu"
                 sequence="20"/>
+
+            <!--  CONFIGRATION  -->
+            <menuitem 
+                id="odoo_multi_channel_crm_menu_configuration" 
+                name="Configration" 
+                parent="multi_channel_crm_menu" 
+                sequence="30"/>
+
+            <menuitem 
+                id="odoo_multi_channel_crm_config_settings_menu" 
+                name="Settings" 
+                parent="odoo_multi_channel_crm_menu_configuration" 
+                action="odoo_multi_channel_crm_config_settings_action" 
+                groups="base.group_system" 
+                sequence="0"/>
     </data>
 </odoo>
