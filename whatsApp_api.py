@@ -128,6 +128,9 @@ class WhatsAppApi:
         ai_model = request.env['ir.config_parameter'].sudo().get_param('odoo_multi_channel_crm.ai_model')
         api_key = request.env['ir.config_parameter'].sudo().get_param('odoo_multi_channel_crm.api_key')
 
+        if not ai_model or not api_key:
+            logging.error(f"Complete your Ai configration")
+
         if identification_code:
             kyc_feed_sudo = request.env['kyc.feed'].sudo().search([('identification_code', '=', identification_code)]).exists()
 

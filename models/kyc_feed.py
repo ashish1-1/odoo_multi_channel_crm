@@ -62,21 +62,22 @@ class Feed(models.Model):
 
 
     def update_kyc_feed(self, response, msg=False):
-        response_msg = response.get("message_response")
+        response_msg = response.get("message_response", "")
         personal_information = response.get("customer_details", {})
         values = {}
 
         if self.is_kyc_complete:
+            self.message_post(body=msg)
             self.message_post(body=response_msg)
             values["whatsapp_msg_contents_history"] = self.update_msg_history(msg, response_msg)
             self.write(values)
 
             return response_msg
         
-        response_msg += """\n\nYour KYC is not complete we need some personal details like: """
+        kyc_response_msg = ""
 
         if not self.customer_type and not response.get("customer_type", False):
-            response_msg += "Buyer or Seller, "
+            kyc_response_msg += "Buyer or Seller, "
         elif not self.customer_type and response.get("customer_type", False):
             values["customer_type"] = response.get("customer_type")
         else:
@@ -84,12 +85,18 @@ class Feed(models.Model):
 
         for field in REQUIRED_KYC_FIELDS[1::]:
             if not self[field] and not personal_information.get(field, False):
-                response_msg += self._fields[field].string + ", "
+                kyc_response_msg += self._fields[field].string + ", "
             elif not self[field] and personal_information.get(field, False):
                 values[field] = personal_information.get(field)
             else:
                 pass
 
+        if kyc_response_msg:
+            response_msg += """\n\nYour KYC is not complete we need some personal details like: """ + kyc_response_msg
+        else:
+            response_msg += """\n\nThank you for the information, we will get back to you soon."""
+
+        self.message_post(body=msg)
         self.message_post(body=response_msg)
         values["whatsapp_msg_contents_history"] = self.update_msg_history(msg, response_msg)
         self.write(values)
@@ -115,7 +122,7 @@ class Feed(models.Model):
                 types.Content(
                     role=list(chat.keys())[0],
                     parts=[
-                        types.Part.from_text(text=list(chat.keys())[0]),
+                        types.Part.from_text(text=list(chat.values())[0]),
                     ],
                 ),                
             )
