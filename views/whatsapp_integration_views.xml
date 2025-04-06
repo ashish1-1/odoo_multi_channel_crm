@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="inherit_whatsapp_integration" model="ir.ui.view">
+            <field name="name">inherit.whatsapp.integration.view.form.inherit</field>
+            <field name="model">multi.channel.crm</field>
+            <field name="inherit_id" ref="odoo_multi_channel_crm.multi_channel_crm_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='default_configuration']" position="before">
+                    <page string="Credentials" name="credentials">
+                        <group>
+                            <group>
+                                <field name="verify_token" widget="CopyClipboardChar"/>
+                                <field name="whatsApp_webhook_url" widget="CopyClipboardChar"/>
+                                <field name="url"/>
+                                <field name="api_key" />
+                                <field name="phone_number_id" />
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

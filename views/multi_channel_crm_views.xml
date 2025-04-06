@@ -55,17 +55,9 @@
                             <field name="active" widget="boolean_toggle"/>
                         </group>
                         <notebook colspan="2">
-                            <page string="Credentials" name="credentials">
+                            <page string="Default Configuration" name="default_configuration">
                                 <group>
-                                    <group>
-                                        <field name="url"/>
-                                        <field name="email" />
-                                        <field name="api_key" />
-                                    </group>
-                                    <group>
-                                        <field name="secret_key" />
-                                        <field name="password" />
-                                    </group>
+                                    <field name="auto_evaluate" />
                                 </group>
                             </page>
                         </notebook>
@@ -102,12 +94,12 @@
         </field>
     </record>
 
-        <record id="multi_channel_crm_view_action" model="ir.actions.act_window">
-            <field name="name">Multi Channel CRM</field>
-            <field name="res_model">multi.channel.crm</field>
-            <field name="view_mode">tree,form,kanban</field>
-            <field name="view_id" ref="multi_channel_crm_view_kanban"/>
-        </record>
+    <record id="multi_channel_crm_view_action" model="ir.actions.act_window">
+        <field name="name">Multi Channel CRM</field>
+        <field name="res_model">multi.channel.crm</field>
+        <field name="view_mode">tree,form,kanban</field>
+        <field name="view_id" ref="multi_channel_crm_view_kanban"/>
+    </record>
 
     </data>
 </odoo>

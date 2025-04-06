@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_multi_channel_crm,multi.channel.crm,model_multi_channel_crm,base.group_user,1,1,1,1
+access_kyc_feed,kyc.feed,model_kyc_feed,base.group_user,1,1,1,1

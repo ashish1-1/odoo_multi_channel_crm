@@ -4,7 +4,21 @@
         <menuitem 
             id="multi_channel_crm_menu"
             name="Multi Channel CRM"
-            action="multi_channel_crm_view_action"
             sequence="2"/>
+
+            <menuitem
+                id="channel_menu"
+                name="Platform"
+                action="multi_channel_crm_view_action"
+                parent="multi_channel_crm_menu"
+                sequence="10"/>
+
+            <menuitem
+                id="kyc_feed_menu"
+                name="KYC Feed"
+                action="kyc_feed_view_action"
+                groups="base.group_no_one"
+                parent="multi_channel_crm_menu"
+                sequence="20"/>
     </data>
 </odoo>
