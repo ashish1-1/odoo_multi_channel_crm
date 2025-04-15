@@ -21,8 +21,10 @@
             <field name="arch" type="xml">
                 <form>
                     <header>
-                    <button name="connection" string="Test Connection" icon="fa-plug"
+                    <button name="test_connection" string="Test Connection" icon="fa-plug"
                                 type="object" class="oe_highlight"/>
+                    <button name="set_to_draft" string="Set To Draft" icon="fa-undo"
+                                type="object" class="oe_highlight" invisible="state == 'draft'"/>
                     <field name="state" widget="statusbar"/>
                     </header>
 

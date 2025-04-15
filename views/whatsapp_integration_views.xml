@@ -7,7 +7,9 @@
             <field name="inherit_id" ref="odoo_multi_channel_crm.multi_channel_crm_view_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//page[@name='default_configuration']" position="before">
-                    <page string="Credentials" name="credentials">
+                    <page string="Credentials" name="credentials" 
+                    invisible="channel != 'whatsapp'"
+                    >
                         <group>
                             <group>
                                 <field name="verify_token" widget="CopyClipboardChar"/>

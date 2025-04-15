@@ -29,6 +29,9 @@ class MultiChannelCrm(models.Model):
     image = fields.Image(max_width=256, max_height=256)
     verify_token = fields.Char(string='Verify Token', readonly=True)
     auto_evaluate = fields.Boolean(string="Auto Evaluate")
+    access_token = fields.Char(string='Access Token')
+    refresh_token = fields.Char(string='Refresh Token')
+    redirect_url = fields.Char(string='Redirect URL', default= lambda self: self.get_redirect_url())
     
     @api.model_create_multi
     def create(self, vals_list):
@@ -44,11 +47,28 @@ class MultiChannelCrm(models.Model):
     def set_to_draft(self):
         self.state = 'draft'
 
-    def connection(self):
-        return []
+    def test_connection(self):
+        self.ensure_one()
+        if hasattr(self, 'connect_%s' % self.channel):
+            res, msg = getattr(self, 'connect_%s' % self.channel)()
+            self.state = 'validate' if res else 'error'
+            return msg
+        elif hasattr(self, 'test_%s_connection' % self.channel):
+            logging.warning(
+                'Use of test_connection function to establish connection to Channel.'
+            )
+            return getattr(self, 'test_%s_connection' % self.channel)()
+        else:
+            return 'Connection protocol missing.'
 
     def _get_verify_token(self):
         return secrets.token_hex(32)
 
     def get_base_url(self):
         return self.env['ir.config_parameter'].sudo().get_param('web.base.url') + "/odoo/webhook"
+
+    def get_redirect_url(self):
+        return self.env['ir.config_parameter'].sudo().get_param('web.base.url') + "/channel/redirect"
+    
+    def base_url(self):
+        return self.env['ir.config_parameter'].sudo().get_param('web.base.url')

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="inherit_gmail_integration" model="ir.ui.view">
+            <field name="name">inherit.gmail.integration.view.form.inherit</field>
+            <field name="model">multi.channel.crm</field>
+            <field name="inherit_id" ref="odoo_multi_channel_crm.multi_channel_crm_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='default_configuration']" position="before">
+                    <page string="Credentials" name="credentials" invisible="channel != 'gmail'">
+                        <group>
+                            <group>
+                                <field name="api_key" string="Client ID"/>
+                                <field name="secret_key" string="Client Secret"/>
+                                <field name="redirect_url" widget="CopyClipboardChar"/>
+                                <field name="refresh_token" groups="base.group_no_one"/>
+                                <field name="access_token" groups="base.group_no_one"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+
+                <xpath expr="//button[@name='test_connection']" position="before">
+                    <button name="gmail_connection" string="Connect Gmail" icon="fa-link"
+                                type="object" class="oe_highlight" invisible="channel != 'gmail' or state == 'connected'"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
