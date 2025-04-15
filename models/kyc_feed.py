@@ -1,9 +1,6 @@
 import json
 
-from google import genai
-from google.genai import types
-
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 
 REQUIRED_KYC_FIELDS = ["customer_type", "name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link",]
 
@@ -39,6 +36,13 @@ class Feed(models.Model):
         string="WhatsApp Msg Content"
     )
 
+    _sql_constraints = [
+        (
+            'unique_identification_code',
+            'unique (identification_code)',
+            _('The Identification Code already exists.')
+        )
+    ]
 
     @api.depends("name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link", "customer_type")
     def _compute_is_kyc_complete(self):
@@ -50,6 +54,7 @@ class Feed(models.Model):
                 and record.isd_code
                 and record.phone
                 and record.address
+                and record.city
                 and record.state
                 and record.country
                 and record.website_link
@@ -64,11 +69,12 @@ class Feed(models.Model):
     def update_kyc_feed(self, response, msg=False):
         response_msg = response.get("message_response", "")
         personal_information = response.get("customer_details", {})
+        odoobot = self.env.ref('base.partner_root')
         values = {}
 
         if self.is_kyc_complete:
             self.message_post(body=msg)
-            self.message_post(body=response_msg)
+            self.message_post(body=response_msg, author_id=odoobot.id)
             values["whatsapp_msg_contents_history"] = self.update_msg_history(msg, response_msg)
             self.write(values)
 
@@ -97,7 +103,7 @@ class Feed(models.Model):
             response_msg += """\n\nThank you for the information, we will get back to you soon."""
 
         self.message_post(body=msg)
-        self.message_post(body=response_msg)
+        self.message_post(body=response_msg, author_id=odoobot.id)
         values["whatsapp_msg_contents_history"] = self.update_msg_history(msg, response_msg)
         self.write(values)
         
@@ -110,21 +116,5 @@ class Feed(models.Model):
             {"user": msg},
             {"model": response_msg},
         ]
-
-        return content_list
-    
-    def get_content_history_list(self):
-        content_list = []
-        history = self.whatsapp_msg_contents_history or []
-
-        for chat in history:
-            content_list.append(
-                types.Content(
-                    role=list(chat.keys())[0],
-                    parts=[
-                        types.Part.from_text(text=list(chat.values())[0]),
-                    ],
-                ),                
-            )
 
         return content_list

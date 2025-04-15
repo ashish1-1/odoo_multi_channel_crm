@@ -1,6 +1,6 @@
 import logging, json, re, requests
 from odoo.http import request
-from .ai_msg_clasification.msg_classification import MessageClassification
+from .ai_msg_clasification.msg_classification import process_message
 
 class WhatsAppApi:
     def __init__(self, channel,channel_id, access_token, phone_number_id):
@@ -71,7 +71,7 @@ class WhatsAppApi:
         # TODO: implement custom function here
 
         # AI Integration
-        response_msg = self.process_message(message_body, wa_id, name)
+        response_msg = process_message(message_body, wa_id, name)
 
         data = self.get_text_message_input(wa_id, response_msg)
         self.send_message(data)
@@ -123,30 +123,3 @@ class WhatsAppApi:
         else:
             # Process the response as normal
             return response
-        
-    def process_message(self, msg, identification_code=False, name=False):
-        ai_model = request.env['ir.config_parameter'].sudo().get_param('odoo_multi_channel_crm.ai_model')
-        api_key = request.env['ir.config_parameter'].sudo().get_param('odoo_multi_channel_crm.api_key')
-
-        if not ai_model or not api_key:
-            logging.error(f"Complete your Ai configration")
-
-        if identification_code:
-            kyc_feed_sudo = request.env['kyc.feed'].sudo().search([('identification_code', '=', identification_code)]).exists()
-
-            if not kyc_feed_sudo:
-                kyc_feed_sudo = request.env['kyc.feed'].sudo().create({
-                    "name": name,
-                    "identification_code": identification_code,
-                    "phone": identification_code,
-                    "whatsapp_msg_contents_history": []
-                })
-
-            content_list = kyc_feed_sudo.get_content_history_list()
-            msg_clf = MessageClassification(ai_model, api_key)
-            response = msg_clf.examine_msg(msg, content_list)
-            response_msg = kyc_feed_sudo.update_kyc_feed(response, msg)
-
-            return response_msg or msg
-        
-        return "Sorry currently out of service!"
