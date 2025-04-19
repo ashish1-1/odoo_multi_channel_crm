@@ -3,11 +3,20 @@ from odoo.http import request
 from urllib.parse import urlencode
 import requests
 from odoo.exceptions import UserError
+from ..gmail_api import GmailApi
 
-SCOPE = "https://www.googleapis.com/auth/gmail.send"
+import logging
+_logger = logging.getLogger(__name__)
+
+
+
+SCOPE = "https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly"
 
 class GmailIntegration(models.Model):
     _inherit = 'multi.channel.crm'
+
+    topic = fields.Char(string="Topic")
+    subscription = fields.Char(string="Subscription")
 
     def _get_channel(self):
         res = super()._get_channel()
@@ -56,3 +65,52 @@ class GmailIntegration(models.Model):
             'target': 'self',
             'url': full_url,
         }
+
+    def setup_gmail_watch_topic(self, cron=False):
+        """Registers Gmail account to watch for changes and push to Pub/Sub topic."""
+        if cron:
+            self = self.env['multi.channel.crm'].search([('channel', '=', 'gmail')], limit=1)
+
+        if not (self.access_token and self.topic):
+            _logger.error("Api key and topic is missing")
+            return None
+
+        url = " https://gmail.googleapis.com/gmail/v1/users/me/watch"
+        header = {
+            'Authorization': f"Bearer {self.access_token}",
+            'Content-Type': 'application/json'
+        }
+        payload =  {
+        "topicName": self.topic,
+        "labelIds": ["INBOX"]
+        }
+        try:
+            response = requests.post(url=url, headers=header, json=payload)
+            response.raise_for_status()  # Raise an error for HTTP errors
+
+            data = response.json()
+            _logger.info("Gmail watch successfully created: %s", data)
+            return data
+
+        except requests.exceptions.HTTPError as http_err:
+            _logger.error("HTTP error while setting up Gmail watch: %s - %s", http_err, response.text)
+        except requests.exceptions.RequestException as req_err:
+            _logger.error("Request error while setting up Gmail watch: %s", req_err)
+        except Exception as e:
+            _logger.exception("Unexpected error while setting up Gmail watch: %s", e)
+        return None
+
+    def open_cron_view(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'ir.cron',
+            'res_id':self.env.ref('odoo_multi_channel_crm.setup_gmail_watch_topic').id,
+            'view_mode': 'form',
+            'target': 'self',
+        }
+
+    def get_gmail_api(self):
+        channel = self
+        channel_id = self.id
+        access_token = self.api_key
+        return GmailApi(channel, channel_id, access_token)

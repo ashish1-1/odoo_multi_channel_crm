@@ -11,6 +11,7 @@
         'views/gmail_integration_views.xml',
         'views/kyc_feed.xml',
         'views/res_config_settings_views.xml',
+        'data/ir_cron_data.xml',
         'views/menu.xml',
     ],
     "pre_init_hook": "pre_init_check",

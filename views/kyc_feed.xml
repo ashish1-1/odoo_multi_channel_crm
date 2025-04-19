@@ -8,7 +8,8 @@
                 <tree>
                     <field name="customer_type" />                    
                     <field name="name" />                    
-                    <field name="company_name" />                    
+                    <field name="company_name" />                  
+                    <field name="state" />                  
                 </tree>
             </field>
         </record>
@@ -18,7 +19,28 @@
             <field name="model">kyc.feed</field>
             <field name="arch" type="xml">
                 <form string="">
+                    <header>
+                        <field name="state" widget="statusbar"/>
+                    </header>
                     <sheet>
+                        <div class="oe_title">
+                            <b><label for="lead_name" string="Lead Name :"/></b>
+                            <h1>
+                                <field
+                                    name       ="lead_name"
+                                    placeholder="Lead Name"
+                                />
+                            </h1>
+                            <div name="channels">
+                                <div>
+                                    <label for="channel" string="Channel :"/>
+                                    <field
+                                        name ="channel"
+                                        class="oe_inline"
+                                    />
+                                </div>
+                            </div>
+                        </div>
                         <group>
                             <group name="customer_information" string="Customer Information">
                                 <field name="name" />

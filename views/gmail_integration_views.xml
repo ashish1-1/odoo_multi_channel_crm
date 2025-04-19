@@ -18,6 +18,49 @@
                             </group>
                         </group>
                     </page>
+                    <page name="gmail_webhook" string="Webhook Configuration" invisible="channel != 'gmail'">
+                        <div class="row o_group">
+                            <!-- Left Column -->
+                            <div class="col-6">
+                                <separator string="Pub/Sub ID's" />
+								<div class="col-xs-12 col-md-6 o_setting_box">
+									<div class="o_setting_left_pane"/>
+									<div class="o_setting_right_pane">
+										<label string="Topic" for="topic"/>
+										<div class="text-muted">
+											<b><field name="topic"/></b>
+										</div>
+									</div>
+								</div>
+                                <div class="col-xs-12 col-md-6 o_setting_box">
+									<div class="o_setting_left_pane"/>
+									<div class="o_setting_right_pane">
+										<label string="Subscription" for="subscription"/>
+										<div class="text-muted">
+											<b><field name="subscription"/></b>
+										</div>
+									</div>
+								</div>
+                            </div>
+
+                            <!-- Right Column -->
+                            <div class="col-6">
+                                <separator string="Gmail Watch Setup" />
+                                <div class="d-flex gap-2">
+                                    <button name="setup_gmail_watch_topic"
+                                            string="Run Manually Watch"
+                                            icon="fa-bell"
+                                            type="object"
+                                            class="btn btn-primary"/>
+
+                                    <button name="open_cron_view"
+                                            string="Configure Watch Cron"
+                                            type="object"
+                                            class="btn btn-outline-secondary"/>
+                                </div>
+                            </div>
+                        </div>
+                    </page>
                 </xpath>
 
                 <xpath expr="//button[@name='test_connection']" position="before">

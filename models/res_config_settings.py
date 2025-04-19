@@ -18,3 +18,5 @@ class ResConfigSettings(models.TransientModel):
         string='Api Key',
         config_parameter="odoo_multi_channel_crm.api_key"
     )
+
+    history_id = fields.Char(string='History Id', config_parameter='odoo_multi_channel_crm.history_id')

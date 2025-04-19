@@ -1,9 +1,18 @@
 import json
-
 from odoo import models, fields, api, _
 
 REQUIRED_KYC_FIELDS = ["customer_type", "name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link",]
 
+STATE = [
+    ('draft', 'Grey List'),
+    ('done', 'White List'),
+    ('error', 'Red List')
+]
+
+CHANNEL = [
+    ('whatsapp', 'WhatsApp'),
+    ('gmail', 'Gmail'),
+]
 class Feed(models.Model):
     _name = "kyc.feed"
     _inherit = ['mail.thread']
@@ -20,6 +29,9 @@ class Feed(models.Model):
     country = fields.Char(string="Country")
     website_link = fields.Char(string="Website Link")
     customer_type = fields.Selection(string='Customer Type',selection=[('buyer', 'Buyer'), ('seller', 'Seller')])
+    state = fields.Selection(STATE, default='draft')
+    lead_name = fields.Char(string='Lead Name')
+    channel = fields.Selection(CHANNEL, default=False)
     
     is_kyc_complete = fields.Boolean(
         string='is_kyc_complete',
