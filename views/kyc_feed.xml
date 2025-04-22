@@ -9,7 +9,7 @@
                     <field name="customer_type" />                    
                     <field name="name" />                    
                     <field name="company_name" />                  
-                    <field name="state" />                  
+                    <field name="kyc_state" />                  
                 </tree>
             </field>
         </record>
@@ -20,8 +20,8 @@
             <field name="arch" type="xml">
                 <form string="">
                     <header>
-                        <button string="Evaluate Feed" name="feed_evaluate" type="object" class="oe_highlight" invisible="state == 'done'"/>
-                        <field name="state" widget="statusbar"/>
+                        <button string="Evaluate Feed" name="feed_evaluate" type="object" class="oe_highlight" invisible="kyc_state == 'done'"/>
+                        <field name="kyc_state" widget="statusbar"/>
                     </header>
                     <sheet>
                         <div class="oe_title">
@@ -34,9 +34,9 @@
                             </h1>
                             <div name="channels">
                                 <div>
-                                    <label for="channel" string="Channel :"/>
+                                    <label for="channel_id" string="Channel :"/>
                                     <field
-                                        name ="channel"
+                                        name ="channel_id"
                                         class="oe_inline"
                                     />
                                 </div>

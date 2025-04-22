@@ -1,7 +1,7 @@
 import json
 from odoo import models, fields, api, _
 
-REQUIRED_KYC_FIELDS = ["customer_type", "name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link",]
+REQUIRED_KYC_FIELDS = ["customer_type", "name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link", "products_list"]
 
 STATE = [
     ('draft', 'Grey List'),
@@ -29,13 +29,23 @@ class Feed(models.Model):
     country = fields.Char(string="Country")
     website_link = fields.Char(string="Website Link")
     customer_type = fields.Selection(string='Customer Type',selection=[('buyer', 'Buyer'), ('seller', 'Seller')])
-    state = fields.Selection(STATE, default='draft')
+    kyc_state = fields.Selection(STATE, default='draft')
     lead_name = fields.Char(string='Lead Name')
-    channel = fields.Selection(CHANNEL, default=False)
+    
+    channel_id = fields.Many2one(
+        string='Channel',
+        comodel_name='multi.channel.crm',
+    )
+    
     
     is_kyc_complete = fields.Boolean(
         string='is_kyc_complete',
-        compute='_compute_is_kyc_complete'
+        compute='_compute_is_kyc_complete',
+        store=True,
+    )
+
+    products_list = fields.Json(
+        string="Product List"
     )
 
     identification_code = fields.Char(
@@ -44,10 +54,15 @@ class Feed(models.Model):
         index=True,
     )
     
-    whatsapp_msg_contents_history = fields.Json(
+    msg_contents_history = fields.Json(
         string="WhatsApp Msg Content"
     )
-
+    
+    user_msg_count = fields.Integer(
+        string='user_msg_count',
+        default=0,
+    )
+    
     _sql_constraints = [
         (
             'unique_identification_code',
@@ -56,7 +71,7 @@ class Feed(models.Model):
         )
     ]
 
-    @api.depends("name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link", "customer_type")
+    @api.depends("name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link", "customer_type", "products_list")
     def _compute_is_kyc_complete(self):
         for record in self:
             if (
@@ -71,8 +86,13 @@ class Feed(models.Model):
                 and record.country
                 and record.website_link
                 and record.customer_type
+                and record.products_list
             ):
-                record.is_kyc_complete = True
+                record.write({
+                    "is_kyc_complete": True,
+                    "lead_name": " ".join(record.products_list) + " - " + record.identification_code,
+                    "kyc_state": "done",
+                })
             else:
                 record.is_kyc_complete = False
 
@@ -82,12 +102,17 @@ class Feed(models.Model):
         response_msg = response.get("message_response", "")
         personal_information = response.get("customer_details", {})
         odoobot = self.env.ref('base.partner_root')
-        values = {}
+        values = {
+            "user_msg_count": self.user_msg_count + 1
+        }
+        
+        if self.user_msg_count + 1 > 4:
+            values["kyc_state"] = "error"
 
         if self.is_kyc_complete:
             self.message_post(body=msg)
             self.message_post(body=response_msg, author_id=odoobot.id)
-            values["whatsapp_msg_contents_history"] = self.update_msg_history(msg, response_msg)
+            values["msg_contents_history"] = self.update_msg_history(msg, response_msg)
             self.write(values)
 
             return response_msg
@@ -116,13 +141,16 @@ class Feed(models.Model):
 
         self.message_post(body=msg)
         self.message_post(body=response_msg, author_id=odoobot.id)
-        values["whatsapp_msg_contents_history"] = self.update_msg_history(msg, response_msg)
+        values["msg_contents_history"] = self.update_msg_history(msg, response_msg)
         self.write(values)
+        
+        if self.kyc_state == "done" and 1:
+            self.feed_evaluate()
         
         return response_msg
 
     def update_msg_history(self, msg, response_msg):
-        content_list = self.whatsapp_msg_contents_history or []
+        content_list = self.msg_contents_history or []
 
         content_list += [
             {"user": msg},

@@ -71,7 +71,7 @@ class WhatsAppApi:
         # TODO: implement custom function here
 
         # AI Integration
-        response_msg = process_message(message_body, wa_id, name)
+        response_msg = process_message(message_body, wa_id, name, self.channel_id)
 
         data = self.get_text_message_input(wa_id, response_msg)
         self.send_message(data)

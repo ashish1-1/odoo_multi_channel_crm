@@ -10,9 +10,27 @@ from odoo.http import request
 
 
 SYSTEM_INSTRUCTION = """
-You are an AI assistant. Your task is to extract structured information from a conversation.
+You are an AI assistant. Your task is to extract structured information from a conversation and respond with a well-formed JSON object.
 
-Please respond ONLY with a **valid JSON object**. Do not include any explanation or extra text. Make sure the output is strictly in this format:
+Important Instructions:
+1. Respond ONLY with a valid JSON object. Do not include any explanation, markdown, or extra text. Return the JSON object directly.
+2. The following fields are REQUIRED to complete the customer's KYC:
+   - name
+   - company_name
+   - email
+   - isd_code
+   - phone
+   - address
+   - city
+   - state
+   - country
+   - website_link
+   - products_list
+   If any of these fields are missing or unclear, ask the user politely to provide the missing details.
+3. Translate any customer-provided information to **English** if it is in another language.
+4. The `"message_response"` field should be a short, user-friendly summary or reply to the message, and must be in the **same language** as the user's original input.
+
+Output format:
 
 {
 	"customer_type": "seller or buyer",
@@ -99,11 +117,22 @@ class MessageClassification:
     
     def extract_json(self, text):
         try:
-            cleaned = re.sub(r"^```(?:json)?|```$", "", text.strip(), flags=re.MULTILINE)
-            return json.loads(cleaned)
-        except json.JSONDecodeError as e:
-            logging.error(f"JSON Decode Failed: {e}")
-            return {}    
+            text = text.strip()
+            text = re.sub(r"^```(?:json)?", "", text)
+            text = re.sub(r"```$", "", text)
+
+            return json.loads(text)
+        except json.JSONDecodeError:
+            try:
+                json_match = re.search(r'{[\s\S]*}', text)
+                if json_match:
+                    json_str = json_match.group(0)
+                    return json.loads(json_str)
+            except Exception as e:
+                logging.error(f"Regex JSON parse failed: {e}")
+        
+        logging.error("Failed to extract valid JSON from response.")
+        return {} 
 
     def examine_msg(self, msg, contents=[]):
         if self.client and self.model and self.ai_model == "gemini":
@@ -159,7 +188,7 @@ class MessageClassification:
             pass
 
 
-def process_message(msg, identification_code=False, name=False):
+def process_message(msg, identification_code=False, name=False, channel_id=False):
     ai_model = request.env['ir.config_parameter'].sudo().get_param('odoo_multi_channel_crm.ai_model')
     api_key = request.env['ir.config_parameter'].sudo().get_param('odoo_multi_channel_crm.api_key')
 
@@ -174,11 +203,16 @@ def process_message(msg, identification_code=False, name=False):
             kyc_feed_sudo = request.env['kyc.feed'].sudo().create({
                 "name": name,
                 "identification_code": identification_code,
-                "phone": identification_code,
-                "whatsapp_msg_contents_history": []
+                "msg_contents_history": [],
+                "channel_id": channel_id
             })
 
-        content_list = kyc_feed_sudo.whatsapp_msg_contents_history or []
+        print(f"\n\n========={kyc_feed_sudo.read([]) = }==========\n\n")
+
+        if kyc_feed_sudo.kyc_state in ["error", "done"]:
+            return "We will get back to you soon"
+
+        content_list = kyc_feed_sudo.msg_contents_history or []
         msg_clf = MessageClassification(ai_model, api_key)
         response = msg_clf.examine_msg(msg, content_list)
         logging.info(f"=================== AI RESPONSE: {response}")
