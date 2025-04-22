@@ -4,7 +4,7 @@
         <menuitem 
             id="multi_channel_crm_menu"
             name="Multi Channel CRM"
-            sequence="2"/>
+            sequence="20"/>
 
             <menuitem
                 id="channel_menu"
@@ -15,25 +15,37 @@
 
             <menuitem
                 id="kyc_feed_menu"
-                name="KYC Feed"
+                name="Feed"
                 action="kyc_feed_view_action"
-                groups="base.group_no_one"
                 parent="multi_channel_crm_menu"
                 sequence="20"/>
+
+            <menuitem 
+                id="odoo_multi_channel_crm_menu_mapping" 
+                name="Mapping" 
+                parent="multi_channel_crm_menu" 
+                sequence="30"/>
+                
+                <menuitem 
+                    id="odoo_multi_channel_crm_contact_mapping_menu" 
+                    name="Contact Mapping" 
+                    parent="odoo_multi_channel_crm_menu_mapping" 
+                    action="channel_contact_mapping_view_action" 
+                    sequence="10"/>
 
             <!--  CONFIGRATION  -->
             <menuitem 
                 id="odoo_multi_channel_crm_menu_configuration" 
                 name="Configration" 
                 parent="multi_channel_crm_menu" 
-                sequence="30"/>
+                sequence="40"/>
 
-            <menuitem 
-                id="odoo_multi_channel_crm_config_settings_menu" 
-                name="Settings" 
-                parent="odoo_multi_channel_crm_menu_configuration" 
-                action="odoo_multi_channel_crm_config_settings_action" 
-                groups="base.group_system" 
-                sequence="0"/>
+                <menuitem 
+                    id="odoo_multi_channel_crm_config_settings_menu" 
+                    name="Settings" 
+                    parent="odoo_multi_channel_crm_menu_configuration" 
+                    action="odoo_multi_channel_crm_config_settings_action" 
+                    groups="base.group_system" 
+                    sequence="10"/>
     </data>
 </odoo>

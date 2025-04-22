@@ -48,7 +48,6 @@ class ChannelWebhook(http.Controller):
                     whatsapp_api = channel.get_whatsApp_api()
                     return whatsapp_api.handle_message(json_data)
                 if platform == 'gmail':
-                    print(f"---------------{request.__dir__()}")
                     encoded_data = json_data.get('message').get('data')
                     subscription = json_data.get('subscription')
                     if subscription != channel.subscription:

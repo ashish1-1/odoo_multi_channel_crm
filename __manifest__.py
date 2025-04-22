@@ -11,6 +11,7 @@
         'views/gmail_integration_views.xml',
         'views/kyc_feed.xml',
         'views/res_config_settings_views.xml',
+        'views/channel_contact_mapping.xml',
         'data/ir_cron_data.xml',
         'views/menu.xml',
     ],

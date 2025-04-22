@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="channel_contact_mapping_view_tree" model="ir.ui.view">
+            <field name="name">channel_contact_mapping.view.tree</field>
+            <field name="model">channel.contact.mapping</field>
+            <field name="arch" type="xml">
+                <tree string="">
+                    <field name="channel_id" />
+                    <field name="store_partner_id" />
+                    <field name="partner_id" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="channel_contact_mapping_view_action" model="ir.actions.act_window">
+            <field name="name">Channel Contact Mapping</field>
+            <field name="res_model">channel.contact.mapping</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="channel_contact_mapping_view_tree"/>
+        </record>
+    </data>
+</odoo>

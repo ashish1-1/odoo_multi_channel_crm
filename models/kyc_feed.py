@@ -130,3 +130,6 @@ class Feed(models.Model):
         ]
 
         return content_list
+
+    def feed_evaluate(self):
+        pass
