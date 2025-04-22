@@ -160,4 +160,42 @@ class Feed(models.Model):
         return content_list
 
     def feed_evaluate(self):
-        pass
+        mapping = self.env['channel.contact.mapping']
+        for rec in self:
+            domain = [('store_partner_id', '=', rec.email)]
+            match = mapping.search(domain, limit=1)
+            if not match:
+                company_id = self.env['res.partner'].create({'name':rec.company_name, 'company_type':'company'})
+                partner_vals = {
+                    'name':rec.name,
+                    'email':rec.email,
+                    'website':rec.website_link,
+                    'phone':rec.isd_code + rec.phone,
+                    'parent_id': company_id.id if company_id else False,
+                    'street':rec.address,
+                    'city':rec.city,
+                    'country_id':self.get_odoo_country(rec.country),
+                    'state_id':self.get_odoo_state(rec.state)
+                }
+                partner = self.env['res.partner'].create(partner_vals)
+                if partner:
+                    lead_vals = {
+                        'name':rec.lead_name,
+                        'partner_id':partner.id
+                    }
+                    lead = self.env['crm.lead'].create(lead_vals)
+                    if lead:
+                        mapping.create({'partner_id':partner.id, 'store_partner_id':partner.email, 'channel_id':rec.channel_id.id})
+
+                        # Update The Kyc State:
+                        if not rec.kyc_state == 'done':
+                            rec.kyc_state = 'done'
+
+
+    def get_odoo_country(self, country):
+        country_id = self.env['res.country'].search([('name','=',country)], limit=1)
+        return country_id.id if country_id else False
+
+    def get_odoo_state(self, state):
+        state_id = self.env['res.country.state'].search([('name','=',state)], limit=1)
+        return state_id.id if state_id else False

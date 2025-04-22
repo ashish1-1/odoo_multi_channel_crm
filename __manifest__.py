@@ -3,7 +3,7 @@
     "version": '1.0',
     "sequence":1,
     "category": 'Other',
-    "depends": ['mail'],
+    "depends": ['mail', 'crm'],
     "data":[
         'security/ir.model.access.csv',
         'views/multi_channel_crm_views.xml',
