@@ -26,15 +26,24 @@ Important Instructions:
    - country
    - website_link
    - products_list
-   If any of these fields are missing or unclear, ask the user politely to provide the missing details.
-3. Translate any customer-provided information to **English** if it is in another language.
-4. The `"message_response"` field should be a short, user-friendly summary or reply to the message, and must be in the **same language** as the user's original input.
+
+   If any of these fields are missing or unclear, ask the user politely to provide them.
+
+3. If the user provides **partial address details**, use your knowledge to intelligently infer the rest. For example:
+   - If the country is provided, try to infer the ISD code.
+   - If a state or city is provided, infer the country and ISD code.
+   - If a phone number is provided with a recognizable ISD code, infer the country.
+   - Only infer details if they are not already provided by the user.
+
+4. Translate all user-provided details to **English** if given in another language.
+
+5. The "message_response" field should remain in the **same language** as the user's original message.
 
 Output format:
 
 {
 	"customer_type": "seller or buyer",
-	"products_list": ["Product1", "Product2"],
+	"products_list": Product1, Product2,
 	"customer_details": {
 		"name": "seller or buyer name",
 		"company_name": "Company Name",
@@ -206,8 +215,6 @@ def process_message(msg, identification_code=False, name=False, channel_id=False
                 "msg_contents_history": [],
                 "channel_id": channel_id
             })
-
-        print(f"\n\n========={kyc_feed_sudo.read([]) = }==========\n\n")
 
         if kyc_feed_sudo.kyc_state in ["error", "done"]:
             return "We will get back to you soon"

@@ -1,7 +1,7 @@
 import json
 from odoo import models, fields, api, _
 
-REQUIRED_KYC_FIELDS = ["customer_type", "name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link", "products_list"]
+REQUIRED_KYC_FIELDS = ["customer_type", "products_list", "name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link"]
 
 STATE = [
     ('draft', 'Grey List'),
@@ -44,7 +44,7 @@ class Feed(models.Model):
         store=True,
     )
 
-    products_list = fields.Json(
+    products_list = fields.Char(
         string="Product List"
     )
 
@@ -90,7 +90,7 @@ class Feed(models.Model):
             ):
                 record.write({
                     "is_kyc_complete": True,
-                    "lead_name": " ".join(record.products_list) + " - " + record.identification_code,
+                    "lead_name": record.products_list + " - " + record.identification_code,
                     "kyc_state": "done",
                 })
             else:
@@ -105,6 +105,9 @@ class Feed(models.Model):
         values = {
             "user_msg_count": self.user_msg_count + 1
         }
+
+        if not self.products_list and response.get("products_list", []):
+            values["products_list"] = response.get("products_list")
         
         if self.user_msg_count + 1 > 4:
             values["kyc_state"] = "error"
@@ -120,31 +123,33 @@ class Feed(models.Model):
         kyc_response_msg = ""
 
         if not self.customer_type and not response.get("customer_type", False):
-            kyc_response_msg += "Buyer or Seller, "
+            # kyc_response_msg += "Buyer or Seller, "
+            pass
         elif not self.customer_type and response.get("customer_type", False):
             values["customer_type"] = response.get("customer_type")
         else:
             pass
 
-        for field in REQUIRED_KYC_FIELDS[1::]:
+        for field in REQUIRED_KYC_FIELDS[2::]:
             if not self[field] and not personal_information.get(field, False):
-                kyc_response_msg += self._fields[field].string + ", "
+                # kyc_response_msg += self._fields[field].string + ", "
+                pass
             elif not self[field] and personal_information.get(field, False):
                 values[field] = personal_information.get(field)
             else:
                 pass
 
-        if kyc_response_msg:
-            response_msg += """\n\nYour KYC is not complete we need some personal details like: """ + kyc_response_msg
-        else:
-            response_msg += """\n\nThank you for the information, we will get back to you soon."""
+        # if kyc_response_msg:
+        #     response_msg += """\n\nYour KYC is not complete we need some personal details like: """ + kyc_response_msg
+        # else:
+        #     response_msg += """\n\nThank you for the information, we will get back to you soon."""
 
         self.message_post(body=msg)
         self.message_post(body=response_msg, author_id=odoobot.id)
         values["msg_contents_history"] = self.update_msg_history(msg, response_msg)
         self.write(values)
         
-        if self.kyc_state == "done" and 1:
+        if self.kyc_state == "done" and self.channel_id.auto_evaluate:
             self.feed_evaluate()
         
         return response_msg
