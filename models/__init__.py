@@ -5,3 +5,4 @@ from . import res_config_settings
 from . import gmail_integration
 from . import gmail_webhook_log
 from . import channel_contact_mapping
+from . import channel_lead_mapping

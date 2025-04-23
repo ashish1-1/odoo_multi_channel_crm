@@ -170,10 +170,11 @@ class Feed(models.Model):
         return content_list
 
     def feed_evaluate(self):
-        mapping = self.env['channel.contact.mapping']
+        contact_mapping = self.env['channel.contact.mapping']
+        lead_mapping = self.env['channel.lead.mapping']
         for rec in self:
             domain = [('store_partner_id', '=', rec.email)]
-            match = mapping.search(domain, limit=1)
+            match = contact_mapping.search(domain, limit=1)
             if not match:
                 company_id = self.env['res.partner'].create({'name':rec.company_name, 'company_type':'company'})
                 partner_vals = {
@@ -195,7 +196,8 @@ class Feed(models.Model):
                     }
                     lead = self.env['crm.lead'].create(lead_vals)
                     if lead:
-                        mapping.create({'partner_id':partner.id, 'store_partner_id':partner.email, 'channel_id':rec.channel_id.id})
+                        lead_mapping.create({'lead_id':lead.id, 'lead_name':lead.name, 'channel_id':rec.channel_id.id})
+                        contact_mapping.create({'partner_id':partner.id, 'store_partner_id':partner.email, 'channel_id':rec.channel_id.id})
 
                         # Update The Kyc State:
                         if not rec.kyc_state == 'done':
@@ -209,3 +211,24 @@ class Feed(models.Model):
     def get_odoo_state(self, state):
         state_id = self.env['res.country.state'].search([('name','=',state)], limit=1)
         return state_id.id if state_id else False
+
+    def open_mapping_view(self):
+        self.ensure_one()
+        model = self._context.get('mapping_model')
+        action = {
+            'name': 'Mapping',
+            'type': 'ir.actions.act_window',
+            'res_model': model,
+            'target': 'current',
+        }
+        store_id = self.email
+        if self._context.get('store_field') == 'lead_name':
+            store_id = self.lead_name
+        res = self.env[model].search(
+            [
+                ('channel_id', '=', self.channel_id.id),
+                (self._context.get('store_field'), '=', store_id),
+            ]
+        )
+        action.update(view_mode='form', res_id=res.id) if len(res) == 1 else action.update(view_mode='tree', domain=[('id', 'in', res.ids)])
+        return action

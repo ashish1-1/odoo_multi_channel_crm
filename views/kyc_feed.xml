@@ -21,6 +21,26 @@
                 <form string="">
                     <header>
                         <button string="Evaluate Feed" name="feed_evaluate" type="object" class="oe_highlight" invisible="kyc_state == 'done'"/>
+						<button
+							name   ='open_mapping_view'
+							type   ='object'
+							string ='Lead Mapping'
+							invisible="kyc_state in ['draft', 'error']"
+							context="{
+								'mapping_model':'channel.lead.mapping',
+								'store_field':'lead_name',
+							}"
+						/>
+						<button
+							name   ='open_mapping_view'
+							type   ='object'
+							string ='Contact Mapping'
+							invisible="kyc_state in ['draft', 'error']"
+							context="{
+								'mapping_model':'channel.contact.mapping',
+								'store_field':'store_partner_id',
+							}"
+						/>
                         <field name="kyc_state" widget="statusbar"/>
                     </header>
                     <sheet>

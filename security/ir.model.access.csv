@@ -3,3 +3,4 @@ access_multi_channel_crm,multi.channel.crm,model_multi_channel_crm,base.group_us
 access_kyc_feed,kyc.feed,model_kyc_feed,base.group_user,1,1,1,1
 access_gmail_webhook_log,access_gmail_webhook_log,model_gmail_webhook_log,base.group_user,1,1,1,1
 access_channel_contact_mapping,access_channel_contact_mapping,model_channel_contact_mapping,base.group_user,1,1,1,1
+access_channel_lead_mapping,access_channel_lead_mapping,model_channel_lead_mapping,base.group_user,1,1,1,1

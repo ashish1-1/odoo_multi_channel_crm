@@ -5,22 +5,19 @@ import logging
 class WhatsAppIntegaration(models.Model):
     _inherit = 'multi.channel.crm'
 
-    whatsApp_webhook_url = fields.Char(string="WhatsApp Webhook URL",)
-    phone_number_id = fields.Char(string="Phone Number ID")
+    phone_number_id = fields.Char(string="Phone Number ID", required=True)
+    account_uid = fields.Char(string="Account ID", required=True)
+    app_uid = fields.Char(string="App ID", required=True)
+    callback_url = fields.Char(string="Callback URL", compute='_compute_callback_url', readonly=True, copy=False)
+
+    def _compute_callback_url(self):
+        for account in self:
+            account.callback_url = self.base_url() + '/whatsapp/webhook'
 
     def _get_channel(self):
         res = super()._get_channel()
         res.append(('whatsapp', 'WhatsApp'))
         return res
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        res = super(WhatsAppIntegaration, self).create(vals_list)
-        if res:
-            url = res.get_base_url()
-            res.write({'whatsApp_webhook_url':url})
-        return res
-
 
     def get_base_url(self):
         res = super(WhatsAppIntegaration, self).get_base_url()

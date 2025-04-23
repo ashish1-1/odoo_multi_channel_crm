@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="channel_lead_mapping_view_tree" model="ir.ui.view">
+            <field name="name">channel_lead_mapping.view.tree</field>
+            <field name="model">channel.lead.mapping</field>
+            <field name="arch" type="xml">
+                <tree string="">
+                    <field name="lead_name" />
+                    <field name="lead_id" />
+                    <field name="channel_id" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="channel_lead_mapping_view_action" model="ir.actions.act_window">
+            <field name="name">Channel lead Mapping</field>
+            <field name="res_model">channel.lead.mapping</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="channel_lead_mapping_view_tree"/>
+        </record>
+    </data>
+</odoo>

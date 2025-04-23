@@ -10,15 +10,35 @@
                     <page string="Credentials" name="credentials" 
                     invisible="channel != 'whatsapp'"
                     >
-                        <group>
-                            <group>
-                                <field name="verify_token" widget="CopyClipboardChar"/>
-                                <field name="whatsApp_webhook_url" widget="CopyClipboardChar"/>
-                                <field name="url"/>
-                                <field name="api_key" />
-                                <field name="phone_number_id" />
-                            </group>
-                        </group>
+                    <h2>Sending messages <a href="https://www.odoo.com/documentation/17.0/applications/productivity/whatsapp.html" title="Documentation" class="o_doc_link" target="_blank"></a></h2>
+                    <p>This configuration is for sending the WhatsApp</p>
+                    <div class="row mt16 o_settings_container" id="tosend_msg">
+                        <setting documentation="https://developers.facebook.com/docs/whatsapp/cloud-api/get-started#phone-number">
+                            <field name="phone_number_id" required="1" placeholder="e.g. 123456789012345"/>
+                        </setting>
+                        <setting>
+                            <field name="account_uid" placeholder="e.g. 123456789012345"/>
+                        </setting>
+                        <setting documentation="https://developers.facebook.com/docs/whatsapp/business-management-api/get-started#system-user-access-tokens">
+                            <field name="api_key" password="True" placeholder="e.g. EGTRWHRTHETHWRBTEJETHGQEGWRHWR"/>
+                        </setting>
+                        <setting>
+                            <field name="secret_key" password="True" placeholder="e.g. 00112233445566778899aabbccddeeff"/>
+                        </setting>
+                        <setting documentation="https://developers.facebook.com/docs/development/create-an-app">
+                            <field name="app_uid" placeholder="e.g. 123456789012345"/>
+                        </setting>
+                    </div>
+                    <h2 class="mt16">Receiving messages <a href="https://www.odoo.com/documentation/17.0/applications/productivity/whatsapp.html" title="Documentation" class="o_doc_link" target="_blank"></a></h2>
+                    <p>This configuration is for receiving the WhatsApp messages.</p>
+                    <div class="row mt16 o_settings_container" id="toreceive_msg">
+                        <setting documentation="https://developers.facebook.com/docs/whatsapp/cloud-api/guides/set-up-webhooks">
+                            <field name="callback_url" widget="CopyClipboardURL"/>
+                        </setting>
+                        <setting>
+                            <field name="verify_token" widget="CopyClipboardText"/>
+                        </setting>
+                    </div>
                     </page>
                 </xpath>
             </field>

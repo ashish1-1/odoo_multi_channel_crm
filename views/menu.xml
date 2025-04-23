@@ -13,12 +13,18 @@
                 parent="multi_channel_crm_menu"
                 sequence="10"/>
 
-            <menuitem
-                id="kyc_feed_menu"
-                name="Feed"
-                action="kyc_feed_view_action"
-                parent="multi_channel_crm_menu"
+            <menuitem 
+                id="odoo_multi_channel_crm_menu_feed" 
+                name="Feed" 
+                parent="multi_channel_crm_menu" 
                 sequence="20"/>
+
+                <menuitem
+                    id="kyc_feed_menu"
+                    name="KYC Feed"
+                    action="kyc_feed_view_action"
+                    parent="odoo_multi_channel_crm_menu_feed"
+                    sequence="10"/>
 
             <menuitem 
                 id="odoo_multi_channel_crm_menu_mapping" 
@@ -27,11 +33,18 @@
                 sequence="30"/>
                 
                 <menuitem 
+                    id="odoo_multi_channel_crm_lead_mapping_menu" 
+                    name="Lead Mapping" 
+                    parent="odoo_multi_channel_crm_menu_mapping" 
+                    action="channel_lead_mapping_view_action" 
+                    sequence="10"/>
+                <menuitem 
                     id="odoo_multi_channel_crm_contact_mapping_menu" 
                     name="Contact Mapping" 
                     parent="odoo_multi_channel_crm_menu_mapping" 
                     action="channel_contact_mapping_view_action" 
-                    sequence="10"/>
+                    sequence="20"/>
+
 
             <!--  CONFIGRATION  -->
             <menuitem 
