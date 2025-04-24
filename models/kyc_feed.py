@@ -3,6 +3,7 @@ import logging
 from odoo import models, fields, api, _
 
 REQUIRED_KYC_FIELDS = ["customer_type", "products_list", "name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link"]
+ADDITIONAL_KYC_FIELDS = ["continent", "customer_language", "country_language"]
 
 STATE = [
     ('draft', 'Grey List'),
@@ -32,6 +33,9 @@ class Feed(models.Model):
     customer_type = fields.Selection(string='Customer Type',selection=[('buyer', 'Buyer'), ('seller', 'Seller')])
     kyc_state = fields.Selection(STATE, default='draft')
     lead_name = fields.Char(string='Lead Name')
+    continent = fields.Char(string="Continent")
+    customer_language = fields.Char(string="Customer Language")
+    country_language = fields.Char(string="Country Language")
     
     channel_id = fields.Many2one(
         string='Channel',
@@ -89,9 +93,10 @@ class Feed(models.Model):
                 and record.customer_type
                 and record.products_list
             ):
+                customer_type = dict(record._fields['customer_type'].selection).get(record.customer_type)
                 record.write({
                     "is_kyc_complete": True,
-                    "lead_name": record.products_list + " - " + record.identification_code,
+                    "lead_name": record.products_list + " / " + customer_type,
                     "kyc_state": "done",
                 })
             else:
@@ -140,6 +145,10 @@ class Feed(models.Model):
                     values[field] = personal_information.get(field)
                 else:
                     pass
+
+            for filed in ADDITIONAL_KYC_FIELDS:
+                if not self[field] and personal_information.get(field, False):
+                    values[field] = personal_information.get(field)
 
             # if kyc_response_msg:
             #     response_msg += """\n\nYour KYC is not complete we need some personal details like: """ + kyc_response_msg
