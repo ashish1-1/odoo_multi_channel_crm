@@ -1,7 +1,7 @@
 {
     "name":"Odoo Multi Channel CRM",
     "version": '1.0',
-    "sequence":1,
+    "sequence":10,
     "category": 'Other',
     "depends": ['mail', 'crm'],
     "data":[
@@ -13,6 +13,7 @@
         'views/res_config_settings_views.xml',
         'views/channel_contact_mapping.xml',
         'views/channel_lead_mapping.xml',
+        'views/crm_lead_views.xml',
         'data/ir_cron_data.xml',
         'views/menu.xml',
     ],

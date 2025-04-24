@@ -1,14 +1,19 @@
 import logging, json, re, requests
 from odoo.http import request
 from .ai_msg_clasification.msg_classification import process_message
+from odoo.exceptions import UserError
+
+DEFAULT_ENDPOINT = "https://graph.facebook.com"
 
 class WhatsAppApi:
-    def __init__(self, channel,channel_id, access_token, phone_number_id):
+    def __init__(self, channel,channel_id, access_token, phone_number_id, app_uid, account_uid):
         self.channel = channel
         self.channel_id = channel_id
         self.access_token = access_token
         self.version = "v22.0"
         self.phone_number_id = phone_number_id
+        self.app_uid = app_uid
+        self.account_uid = account_uid
 
 
     def handle_message(self, body):
@@ -123,3 +128,42 @@ class WhatsAppApi:
         else:
             # Process the response as normal
             return response
+
+    def _test_connection(self):
+        """ This method is used to test connection of WhatsApp Business Account"""
+        logging.info("Test connection: Verify set phone uid is available in account ")
+        headers = {
+            'Authorization': f'Bearer {self.access_token}'
+        }
+        response = requests.get(url=f"{DEFAULT_ENDPOINT}/{self.version}/{self.account_uid}/phone_numbers", headers=headers)
+        try:
+            if 'error' in response.json():
+                raise UserError(*self._prepare_error_response(response.json()))
+        except ValueError:
+            if not response.ok:
+                raise UserError("Network Failure")
+        data = response.json().get('data', [])
+        phone_values = [phone['id'] for phone in data if 'id' in phone]
+        if self.phone_number_id not in phone_values:
+            raise UserError(_("Phone number Id is wrong."), 'account')
+        logging.info("Test connection: check app uid and token set in account")
+        uploads_session_response = requests.post(url=f"{DEFAULT_ENDPOINT}/{self.version}/{self.app_uid}/uploads", params={'access_token': self.access_token})
+        upload_session_id = uploads_session_response.json().get('id')
+        if not upload_session_id:
+            raise UserError(*self._prepare_error_response(uploads_session_response.json()))
+        return True
+
+
+    def _prepare_error_response(self, response):
+        """
+            This method is used to prepare error response
+            :return tuple[str, int]: (error_message, whatsapp_error_code | -1)
+        """
+        if response.get('error'):
+            error = response['error']
+            desc = error.get('message', '')
+            desc += (' - ' + error['error_user_title']) if error.get('error_user_title') else ''
+            desc += ('\n\n' + error['error_user_msg']) if error.get('error_user_msg') else ''
+            code = error.get('code', 'odoo')
+            return (desc if desc else _("Non-descript Error"), code)
+        return (_("Something went wrong when contacting WhatsApp, please try again later. If this happens frequently, contact support."), -1)

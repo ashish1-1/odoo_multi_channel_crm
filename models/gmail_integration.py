@@ -1,9 +1,9 @@
 from odoo import models, fields
 from odoo.http import request
 from urllib.parse import urlencode
-import requests
 from odoo.exceptions import UserError
 from ..gmail_api import GmailApi
+import requests
 
 import logging
 _logger = logging.getLogger(__name__)

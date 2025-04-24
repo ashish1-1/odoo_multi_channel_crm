@@ -37,6 +37,13 @@ class Feed(models.Model):
     customer_language = fields.Char(string="Customer Language")
     country_language = fields.Char(string="Country Language")
     
+    # Business related fields
+    loading_port = fields.Char(string="Loading Port")
+    monthly_quantity = fields.Char(string="Monthly Quantity")
+    current_quantity = fields.Char(string="Current quantity")
+    loading_weight = fields.Char(string="Loading weight", help="Loading weight in each container")
+    taregt_price = fields.Char(string="Taregt Price", help="Taregt price FOB/CNF basis")
+    
     channel_id = fields.Many2one(
         string='Channel',
         comodel_name='multi.channel.crm',

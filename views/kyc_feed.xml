@@ -60,25 +60,47 @@
                                         class="oe_inline"
                                     />
                                 </div>
+                                <div>
+                                    <label for="customer_type" string="Customer Type :"/>
+                                    <field
+                                        name ="customer_type"
+                                        class="oe_inline"
+                                    />
+                                </div>
                             </div>
                         </div>
-                        <group>
-                            <group name="customer_information" string="Customer Information">
-                                <field name="name" />
-                                <field name="company_name" />
-                                <field name="email" />
-                                <field name="phone" />
-                                <field name="customer_type" />
-                            </group>
-                            <group name="address" string="Customer Address">
-                                <field name="address" />
-                                <field name="city" />
-                                <field name="state" />
-                                <field name="isd_code" />
-                                <field name="country" />
-                                <field name="website_link" />
-                            </group>
-                        </group>
+                        
+                        <notebook>
+                            <page name="business_info" string="Business Information">
+                                <group>
+                                    <group>
+                                        <field name="loading_port" />
+                                        <field name="monthly_quantity" />
+                                        <field name="current_quantity" />
+                                        <field name="loading_weight" />
+                                        <field name="taregt_price" />
+                                    </group>
+                                </group>
+                            </page>
+                            <page name="kyc_info" string="KYC Information">
+                                <group>
+                                    <group name="customer_information" string="Customer Information">
+                                        <field name="name" />
+                                        <field name="company_name" />
+                                        <field name="email" />
+                                        <field name="phone" />
+                                    </group>
+                                    <group name="address" string="Customer Address">
+                                        <field name="address" />
+                                        <field name="city" />
+                                        <field name="state" />
+                                        <field name="isd_code" />
+                                        <field name="country" />
+                                        <field name="website_link" />
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
                     </sheet>
                     <!-- Chatter -->
                     <div class="oe_chatter">

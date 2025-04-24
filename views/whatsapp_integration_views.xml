@@ -14,7 +14,7 @@
                     <p>This configuration is for sending the WhatsApp</p>
                     <div class="row mt16 o_settings_container" id="tosend_msg">
                         <setting documentation="https://developers.facebook.com/docs/whatsapp/cloud-api/get-started#phone-number">
-                            <field name="phone_number_id" required="1" placeholder="e.g. 123456789012345"/>
+                            <field name="phone_number_id" placeholder="e.g. 123456789012345"/>
                         </setting>
                         <setting>
                             <field name="account_uid" placeholder="e.g. 123456789012345"/>
