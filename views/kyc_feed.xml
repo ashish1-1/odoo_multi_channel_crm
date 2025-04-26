@@ -67,18 +67,31 @@
                                         class="oe_inline"
                                     />
                                 </div>
+                                <div>
+                                    <label for="customer_language" string="Communication Language :"/>
+                                    <field
+                                        name ="customer_language"
+                                        class="oe_inline"
+                                    />
+                                </div>
                             </div>
                         </div>
                         
                         <notebook>
                             <page name="business_info" string="Business Information">
-                                <group>
+                                <group name="product_info" string="Product Information">
                                     <group>
                                         <field name="loading_port" />
                                         <field name="monthly_quantity" />
                                         <field name="current_quantity" />
                                         <field name="loading_weight" />
                                         <field name="taregt_price" />
+                                    </group>
+                                    <group>
+                                        <field name="products_list" />
+                                        <field name="category" />
+                                        <field name="sub_category" />
+                                        <field name="forms" />
                                     </group>
                                 </group>
                             </page>
@@ -89,6 +102,8 @@
                                         <field name="company_name" />
                                         <field name="email" />
                                         <field name="phone" />
+                                        <field name="continent" />
+                                        <field name="country_language" />
                                     </group>
                                     <group name="address" string="Customer Address">
                                         <field name="address" />

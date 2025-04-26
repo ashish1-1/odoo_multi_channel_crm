@@ -17,11 +17,19 @@ class GmailIntegration(models.Model):
 
     topic = fields.Char(string="Topic")
     subscription = fields.Char(string="Subscription")
+    project_id = fields.Char(string="Project ID")
 
     def _get_channel(self):
         res = super()._get_channel()
         res.append(('gmail', 'Gmail'))
         return res
+
+    def _compute_callback_url(self):
+        for rec in self:
+            if rec.channel == 'gmail':
+                rec.callback_url = rec.get_webhook_url() + f'{rec.id}/gmail'
+            else:
+                super()._compute_callback_url()
 
     def test_gmail_connection(self):
         if not self.refresh_token:
@@ -45,9 +53,7 @@ class GmailIntegration(models.Model):
         redirect_url = self.redirect_url
         if redirect_url:
             if 'http' == redirect_url.split(":")[0]:
-                print("inside")
                 redirect_url = redirect_url.replace("http", "https")
-
         request.session['instance_id'] = self.id
         base_url = "https://accounts.google.com/o/oauth2/v2/auth"
         params = {

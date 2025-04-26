@@ -19,7 +19,6 @@ class MultiChannelCrm(models.Model):
 
     name = fields.Char(string='Name', required=True)
     channel = fields.Selection(string='channel',selection='_get_channel')
-    url = fields.Char(string='URL')
     email = fields.Char(string='Api User')
     api_key = fields.Char(string='Api Key')
     secret_key = fields.Char(string='Secret Key')
@@ -31,7 +30,8 @@ class MultiChannelCrm(models.Model):
     auto_evaluate = fields.Boolean(string="Auto Evaluate")
     access_token = fields.Char(string='Access Token')
     refresh_token = fields.Char(string='Refresh Token')
-    redirect_url = fields.Char(string='Redirect URL', default= lambda self: self.get_redirect_url())
+    redirect_url = fields.Char(string='Redirect URL', compute='_compute_redirect_url', readonly=True, copy=False)
+    callback_url = fields.Char(string="Callback URL", compute='_compute_callback_url', readonly=True, copy=False)
     
     @api.model_create_multi
     def create(self, vals_list):
@@ -64,11 +64,16 @@ class MultiChannelCrm(models.Model):
     def _get_verify_token(self):
         return secrets.token_hex(32)
 
-    def get_base_url(self):
-        return self.env['ir.config_parameter'].sudo().get_param('web.base.url') + "/odoo/webhook"
+    def get_webhook_url(self):
+        return self.env['ir.config_parameter'].sudo().get_param('web.base.url') + "/odoo/webhook/"
 
-    def get_redirect_url(self):
-        return self.env['ir.config_parameter'].sudo().get_param('web.base.url') + "/channel/redirect"
+    def _compute_redirect_url(self):
+        for rec in self:
+            rec.redirect_url = rec.base_url() + "/channel/redirect"
     
     def base_url(self):
         return self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+
+    def _compute_callback_url(self):
+        for rec in self:
+            rec.callback_url = False

@@ -43,6 +43,11 @@ class Feed(models.Model):
     current_quantity = fields.Char(string="Current quantity")
     loading_weight = fields.Char(string="Loading weight", help="Loading weight in each container")
     taregt_price = fields.Char(string="Taregt Price", help="Taregt price FOB/CNF basis")
+
+    # Product related information fields
+    category = fields.Char(string="Categroy")
+    sub_category = fields.Char(string="Sub Categroy")
+    forms = fields.Char(string="Forms")
     
     channel_id = fields.Many2one(
         string='Channel',

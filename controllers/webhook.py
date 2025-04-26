@@ -64,8 +64,8 @@ class ChannelWebhook(http.Controller):
                     logging.info(f"===================== Gmail Webhook received")
                     # TODO: Process message here
                     logging.info(f"===================== {json.dumps(json_data, indent=4)}")
-                    gmail_api = channel.get_gmail_api()
-                    return gmail_api.handle_message(json_data)
+                    # gmail_api = channel.get_gmail_api()
+                    # return gmail_api.handle_message(json_data)
 
         except Exception as e:
             logging.info(f"===================== Error :", str(e))

@@ -12,6 +12,7 @@
                             <group>
                                 <field name="api_key" string="Client ID"/>
                                 <field name="secret_key" string="Client Secret"/>
+                                <field name="callback_url" widget="CopyClipboardChar"/>
                                 <field name="redirect_url" widget="CopyClipboardChar"/>
                                 <field name="refresh_token" groups="base.group_no_one"/>
                                 <field name="access_token" groups="base.group_no_one"/>
@@ -38,6 +39,15 @@
 										<label string="Subscription" for="subscription"/>
 										<div class="text-muted">
 											<b><field name="subscription"/></b>
+										</div>
+									</div>
+								</div>
+                                <div class="col-xs-12 col-md-6 o_setting_box">
+									<div class="o_setting_left_pane"/>
+									<div class="o_setting_right_pane">
+										<label string="Project ID" for="project_id"/>
+										<div class="text-muted">
+											<b><field name="project_id"/></b>
 										</div>
 									</div>
 								</div>

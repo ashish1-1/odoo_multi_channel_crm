@@ -9,21 +9,18 @@ class WhatsAppIntegaration(models.Model):
     phone_number_id = fields.Char(string="Phone Number ID")
     account_uid = fields.Char(string="Account ID")
     app_uid = fields.Char(string="App ID")
-    callback_url = fields.Char(string="Callback URL", compute='_compute_callback_url', readonly=True, copy=False)
+    
 
     def _compute_callback_url(self):
-        for account in self:
-            account.callback_url = self.base_url() + f'/odoo/webhook/{account.id}/whatsapp'
+        for rec in self:
+            if rec.channel == 'whatsapp':
+                rec.callback_url = rec.get_webhook_url() + f'{rec.id}/whatsapp'
+            else:
+                super()._compute_callback_url()
 
     def _get_channel(self):
         res = super()._get_channel()
         res.append(('whatsapp', 'WhatsApp'))
-        return res
-
-    def get_base_url(self):
-        res = super(WhatsAppIntegaration, self).get_base_url()
-        if res:
-            return res+f"/{self.id}/whatsapp"
         return res
 
     def get_whatsApp_api(self):

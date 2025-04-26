@@ -138,7 +138,7 @@ class WhatsAppApi:
         response = requests.get(url=f"{DEFAULT_ENDPOINT}/{self.version}/{self.account_uid}/phone_numbers", headers=headers)
         try:
             if 'error' in response.json():
-                raise UserError(*self._prepare_error_response(response.json()))
+                raise UserError(self._prepare_error_response(response.json()))
         except ValueError:
             if not response.ok:
                 raise UserError("Network Failure")
