@@ -1,9 +1,10 @@
-import json
-import logging
+import logging, time
+from psycopg2 import OperationalError
 from odoo import models, fields, api, _
 
 REQUIRED_KYC_FIELDS = ["customer_type", "products_list", "name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link"]
 ADDITIONAL_KYC_FIELDS = ["continent", "customer_language", "country_language"]
+EXTRA_PRODUCT_DETAIL_FIELDS = ["loading_port", "monthly_quantity", "current_quantity", "loading_weight", "taregt_price"]
 
 STATE = [
     ('draft', 'Grey List'),
@@ -109,17 +110,15 @@ class Feed(models.Model):
                 record.write({
                     "is_kyc_complete": True,
                     "lead_name": record.products_list + " / " + customer_type,
-                    "kyc_state": "done",
                 })
             else:
                 record.is_kyc_complete = False
-
-
 
     def update_kyc_feed(self, response, msg=False):
         try:
             response_msg = response.get("message_response", "")
             personal_information = response.get("customer_details", {})
+            product_details = response.get("product_details", {})
             odoobot = self.env.ref('base.partner_root')
             values = {
                 "user_msg_count": self.user_msg_count + 1
@@ -158,9 +157,13 @@ class Feed(models.Model):
                 else:
                     pass
 
-            for filed in ADDITIONAL_KYC_FIELDS:
+            for field in ADDITIONAL_KYC_FIELDS:
                 if not self[field] and personal_information.get(field, False):
                     values[field] = personal_information.get(field)
+
+            for field in EXTRA_PRODUCT_DETAIL_FIELDS:
+                if not self[field] and product_details.get(field, False):
+                    values[field] = product_details.get(field)                    
 
             # if kyc_response_msg:
             #     response_msg += """\n\nYour KYC is not complete we need some personal details like: """ + kyc_response_msg
@@ -172,7 +175,7 @@ class Feed(models.Model):
             values["msg_contents_history"] = self.update_msg_history(msg, response_msg)
             self.write(values)
             
-            if self.kyc_state == "done" and self.channel_id.auto_evaluate:
+            if self.is_kyc_complete and self.channel_id.auto_evaluate:
                 self.feed_evaluate()
             
             return response_msg

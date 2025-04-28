@@ -14,8 +14,12 @@
         'views/channel_contact_mapping.xml',
         'views/channel_lead_mapping.xml',
         'views/crm_lead_views.xml',
+        'views/category_model_views.xml',
         'data/ir_cron_data.xml',
         'views/menu.xml',
     ],
+    'external_dependencies': {
+        'python' : ['openai','google-genai'],
+    },
     "pre_init_hook": "pre_init_check",
 }

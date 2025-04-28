@@ -18,6 +18,7 @@ class GmailIntegration(models.Model):
     topic = fields.Char(string="Topic")
     subscription = fields.Char(string="Subscription")
     project_id = fields.Char(string="Project ID")
+    
 
     def _get_channel(self):
         res = super()._get_channel()
@@ -95,6 +96,8 @@ class GmailIntegration(models.Model):
             response.raise_for_status()  # Raise an error for HTTP errors
 
             data = response.json()
+            if data and data.get('historyId'):
+                self.env['ir.config_parameter'].sudo().set_param('odoo_multi_channel_crm.history_id', data.get('historyId'))
             _logger.info("Gmail watch successfully created: %s", data)
             return data
 
@@ -104,7 +107,7 @@ class GmailIntegration(models.Model):
             _logger.error("Request error while setting up Gmail watch: %s", req_err)
         except Exception as e:
             _logger.exception("Unexpected error while setting up Gmail watch: %s", e)
-        return None
+        return True
 
     def open_cron_view(self):
         return {
@@ -118,5 +121,5 @@ class GmailIntegration(models.Model):
     def get_gmail_api(self):
         channel = self
         channel_id = self.id
-        access_token = self.api_key
+        access_token = self.access_token
         return GmailApi(channel, channel_id, access_token)

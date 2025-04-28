@@ -3,6 +3,7 @@ import logging
 import re
 
 import openai
+from openai import OpenAI
 from google import genai
 from google.genai import types
 
@@ -27,12 +28,13 @@ Important Instructions:
    - website_link
    - products_list
 
-   If any of these fields are missing or unclear, ask the user politely to provide them.
+   If any of these fields are missing or unclear, set their value as an empty string "" (do not write "Not Provided" or any other placeholder).
+   Also, politely ask the user to provide any missing details if possible.
 
 3. In addition to the required fields, enrich the response with the following auto-detected details:
    - "customer_language": Identify the language the customer is using.
    - "continent": Infer based on the provided country.
-   - "country_language": Identify the official or primary language(s) of the given country.   
+   - "country_language": Identify the official or primary language(s) of the given country.
 
 4. If the user provides **partial address details**, use your knowledge to intelligently infer the rest. For example:
    - If the country is provided, try to infer the ISD code.
@@ -43,6 +45,19 @@ Important Instructions:
 5. Translate all user-provided details to **English** if given in another language.
 
 6. The "message_response" field should remain in the **same language** as the user's original message.
+
+7. If the website link is provided and the address is not given by the customer, attempt to fetch the address details from the website. If the address is found, populate the corresponding fields (company_name, address, city, state, country), and do not ask the user for the address details.
+
+8. Additionally, ask for more detailed information regarding the customer's products, such as:
+    - Loading Port
+    - Monthly Quantity
+    - Current Quantity
+    - Loading Weight
+    - Target Price
+
+9. Automatically determine whether the message is from a **seller** or a **buyer** based on context, product-related requests, or other clues in the message. If unclear, default to an appropriate assumption (e.g., if asking for product details, assume "buyer", if offering products, assume "seller").
+
+10. Format the "message_response" properly to improve readability. Avoid placing the response in a single line. If the  
 
 Output format:
 
@@ -64,6 +79,14 @@ Output format:
         "continent": "Continent based on country",
         "country_language": "Primary language(s) of the provided country"        
 	},
+    "product_details": {
+        "products_list": Product1, Product2,
+        "loading_port": "Port location",
+        "monthly_quantity": "Qty in ton",
+        "current_quantity": "Qty in ton",
+        "loading_weight": "Weight in ton",
+        "taregt_price": "Price as per the country currency"
+    },    
     "message_response": "Short, user-friendly summary or reply to the message"
 }
 """
@@ -90,8 +113,10 @@ class MessageClassification:
 
         elif self.ai_model == "openai":
             try:
-                openai.api_key = self.api_key
-                self.model = "gpt-4"
+                self.client = OpenAI(
+                    api_key=self.api_key
+                )
+                self.model = "gpt-4.1"                
             except Exception as e:
                 logging.error(f"Failed to set OpenAI API key: {e}")
 
@@ -181,7 +206,7 @@ class MessageClassification:
                 logging.error(f"Failed to generate response: {e}")
                 return {}
 
-        elif self.ai_model == "openai":
+        elif self.client and self.ai_model == "openai":
             try:
                 conversation = self.prepare_openai_previous_conversation(contents)
                 messages = [
@@ -189,12 +214,11 @@ class MessageClassification:
                     *conversation,
                     {"role": "user", "content": msg}
                 ]
-                completion = openai.ChatCompletion.create(
+                completion = self.client.chat.completions.create(
                     model=self.model,
                     messages=messages,
-                    temperature=0.5,
                 )
-                response_text = completion['choices'][0]['message']['content']
+                response_text = completion.choices[0].message.content
                 return self.extract_json(response_text)
                 # return json.loads(response_text)
             except Exception as e:

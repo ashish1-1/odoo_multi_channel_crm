@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem
+        id="menu_category"
+        name="Category"
+        parent="crm.crm_menu_config"
+        sequence="15"
+        groups="base.group_no_one"/>
+
+	<record id="lead_type_tree_view" model="ir.ui.view">
+        <field name="name">lead.type.tree.view</field>
+        <field name="model">lead.type</field>
+        <field name="arch" type="xml">
+	        <tree string="Lead Type" editable="top">
+		        <field name="sequence" widget="handle"/>
+		        <field name="name"/>
+	        </tree>
+        </field>
+    </record>
+
+	<record id="lead_type_action" model="ir.actions.act_window">
+        <field name="name">Lead Type</field>
+        <field name="res_model">lead.type</field>
+        <field name="view_mode">tree</field>
+        <field name="target">current</field>
+    </record>
+
+	<menuitem id="lead_type_menu"
+        action="lead_type_action"
+        parent="menu_category"/>
+
+	<record id="categ_categ_tree_view" model="ir.ui.view">
+        <field name="name">categ.categ.tree.view</field>
+        <field name="model">categ.categ</field>
+        <field name="arch" type="xml">
+	        <tree string="Category" editable="top">
+		        <field name="sequence" widget="handle"/>
+		        <field name="name"/>
+	        </tree>
+        </field>
+    </record>
+
+	<record id="categ_categ_action" model="ir.actions.act_window">
+        <field name="name">Category</field>
+        <field name="res_model">categ.categ</field>
+        <field name="view_mode">tree</field>
+        <field name="target">current</field>
+    </record>
+
+	<menuitem id="categ_categ_menu"
+        action="categ_categ_action"
+        parent="menu_category"/>
+
+	<record id="sub_categ_tree_view" model="ir.ui.view">
+        <field name="name">sub.categ.tree.view</field>
+        <field name="model">sub.categ</field>
+        <field name="arch" type="xml">
+	        <tree string="Sub Category" editable="top">
+		        <field name="sequence" widget="handle"/>
+		        <field name="name"/>
+	        </tree>
+        </field>
+    </record>
+
+	<record id="sub_categ_action" model="ir.actions.act_window">
+        <field name="name">Sub Category</field>
+        <field name="res_model">sub.categ</field>
+        <field name="view_mode">tree</field>
+        <field name="target">current</field>
+    </record>
+
+	<menuitem id="sub_categ_menu"
+        action="sub_categ_action"
+        parent="menu_category"/>
+
+	<record id="child_categ_tree_view" model="ir.ui.view">
+        <field name="name">child.categ.tree.view</field>
+        <field name="model">child.categ</field>
+        <field name="arch" type="xml">
+	        <tree string="Child Category" editable="top">
+		        <field name="sequence" widget="handle"/>
+		        <field name="name"/>
+	        </tree>
+        </field>
+    </record>
+
+	<record id="child_categ_action" model="ir.actions.act_window">
+        <field name="name">Child Category</field>
+        <field name="res_model">child.categ</field>
+        <field name="view_mode">tree</field>
+        <field name="target">current</field>
+    </record>
+
+	<menuitem id="child_categ_menu"
+        action="child_categ_action"
+        parent="menu_category"/>
+
+	<record id="sub_child_categ_tree_view" model="ir.ui.view">
+        <field name="name">sub.child.categ.tree.view</field>
+        <field name="model">sub.child.categ</field>
+        <field name="arch" type="xml">
+	        <tree string="Sub Child Category" editable="top">
+		        <field name="sequence" widget="handle"/>
+		        <field name="name"/>
+	        </tree>
+        </field>
+    </record>
+
+	<record id="sub_child_categ_action" model="ir.actions.act_window">
+        <field name="name">Sub Child Category</field>
+        <field name="res_model">sub.child.categ</field>
+        <field name="view_mode">tree</field>
+        <field name="target">current</field>
+    </record>
+
+	<menuitem id="sub_child_categ_menu"
+        action="sub_child_categ_action"
+        parent="menu_category"/>
+
+	<record id="form_form_tree_view" model="ir.ui.view">
+        <field name="name">form.form.tree.view</field>
+        <field name="model">form.form</field>
+        <field name="arch" type="xml">
+	        <tree string="Category Form" editable="top">
+		        <field name="sequence" widget="handle"/>
+		        <field name="name"/>
+	        </tree>
+        </field>
+    </record>
+
+	<record id="form_form_action" model="ir.actions.act_window">
+        <field name="name">Category Form</field>
+        <field name="res_model">form.form</field>
+        <field name="view_mode">tree</field>
+        <field name="target">current</field>
+    </record>
+
+	<menuitem id="form_form_menu"
+        action="form_form_action"
+        parent="menu_category"/>
+</odoo>

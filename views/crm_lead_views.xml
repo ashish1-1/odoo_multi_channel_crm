@@ -9,13 +9,21 @@
                 <xpath expr="//page[@name='internal_notes']" position="before">
                     <page name="business_info" string="Business Information">
                         <group>
-                            <group>
-                                <field name="customer_type" />
+                            <group name="business_related_information" string="Business Related Information">
                                 <field name="loading_port" />
                                 <field name="monthly_quantity" />
                                 <field name="current_quantity" />
                                 <field name="loading_weight" />
                                 <field name="taregt_price" />
+                            </group>
+                            <group name="product_info" string="Product Category Information">
+                                <field name="channel_id" widget="selection"/>
+                                <field name="lead_type_id" widget="selection"/>
+                                <field name="categ_ids" widget="many2many_tags"/>
+                                <field name="sub_categ_ids" widget="many2many_tags"/>
+                                <field name="child_categ_ids" widget="many2many_tags"/>
+                                <field name="sub_child_categ_ids" widget="many2many_tags"/>
+                                <field name="form_ids" widget="many2many_tags"/>
                             </group>
                         </group>
                     </page>
