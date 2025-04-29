@@ -1,6 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
+		<record id="kyc_feed_view_search" model="ir.ui.view">
+			<field name="name">kyc.feed</field>
+			<field name="model">kyc.feed</field>
+			<field name="arch" type="xml">
+			<search string="Feed">
+					<group expand="0" string="Group By...">
+						<filter
+							string ="Channel"
+							name   ="filter_by_channel_id"
+							context="{'group_by':'channel_id'}"
+						/>
+						<filter
+							string ="State"
+							name   ='filter_by_kyc_state'
+							domain ="[]"
+							context="{'group_by':'kyc_state'}"
+						/>
+
+						<group string='Filters'>
+							<filter
+								icon   ="terp-check"
+								name   ="channel_id"
+								string ="Channel"
+								domain ="[]"
+								help   ="Channel"
+								context="{'group_by':'channel_id'}"
+							/>
+							<filter
+								icon   ="terp-check"
+								name   ="kyc_state"
+								string ="State"
+								domain ="[]"
+								help   ="Channel"
+								context="{'group_by':'kyc_state'}"
+							/>
+						</group>
+					</group>
+				</search>
+			</field>
+		</record>
         <record id="kyc_feed_view_tree" model="ir.ui.view">
             <field name="name">kyc_feed.view.tree</field>
             <field name="model">kyc.feed</field>
@@ -9,7 +49,7 @@
                     <field name="customer_type" />                    
                     <field name="name" />                    
                     <field name="company_name" />                  
-                    <field name="kyc_state" />                  
+                    <field name="kyc_state" string="State" widget="badge"/>                  
                 </tree>
             </field>
         </record>
@@ -131,6 +171,12 @@
             <field name="res_model">kyc.feed</field>
             <field name="view_mode">tree,form</field>
             <field name="view_id" ref="kyc_feed_view_tree"/>
+            <field name="context">
+                {
+                    "search_default_filter_by_kyc_state":1,
+                    "search_default_filter_by_channel_id":1
+                }
+			</field>
         </record>
     </data>
 </odoo>

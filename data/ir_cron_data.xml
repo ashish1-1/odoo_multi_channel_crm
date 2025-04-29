@@ -12,5 +12,16 @@
            <field name='interval_number'>7</field>
            <field name='interval_type'>days</field>
        </record>
+       <record id="gmail_token_refresh" model="ir.cron">
+           <field name="name">Gmail Token Refresh</field>
+           <field name="model_id" ref="model_multi_channel_crm"/>
+           <field name="active" eval="False"/>
+           <field name="user_id" ref="base.user_root"/>
+           <field name="state">code</field>
+           <field name="code">model.test_gmail_connection()</field>
+           <field name="user_id" ref="base.user_root"/>
+           <field name='interval_number'>45</field>
+           <field name='interval_type'>minutes</field>
+       </record>
    </data>
 </odoo>

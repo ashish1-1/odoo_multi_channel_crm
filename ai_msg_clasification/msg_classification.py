@@ -46,7 +46,9 @@ Important Instructions:
 
 6. The "message_response" field should remain in the **same language** as the user's original message.
 
-7. If the website link is provided and the address is not given by the customer, attempt to fetch the address details from the website. If the address is found, populate the corresponding fields (company_name, address, city, state, country), and do not ask the user for the address details.
+7. If the website link is provided and address details are missing, simulate fetching the address from the website's "Contact Us" or "Contact" page or section from the website. Based on that:
+   - Fill in fields like city, state, and country.
+   - If the address is not found, politely ask the user to provide it.
 
 8. Additionally, ask for more detailed information regarding the customer's products, such as:
     - Loading Port
@@ -255,7 +257,7 @@ def process_message(msg, identification_code=False, name=False, channel_id=False
         msg_clf = MessageClassification(ai_model, api_key)
         response = msg_clf.examine_msg(msg, content_list)
         logging.info(f"=================== AI RESPONSE: {response}")
-        response_msg = kyc_feed_sudo.update_kyc_feed(response, msg)
+        response_msg = kyc_feed_sudo.update_kyc_feed(response, msg, identification_code=identification_code, name=name, channel_id=channel_id)
 
         return response_msg or msg
 

@@ -1,6 +1,7 @@
-import logging, time
-from psycopg2 import OperationalError
+import logging
 from odoo import models, fields, api, _
+
+from ..ai_msg_clasification.msg_classification import process_message
 
 REQUIRED_KYC_FIELDS = ["customer_type", "products_list", "name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link"]
 ADDITIONAL_KYC_FIELDS = ["continent", "customer_language", "country_language"]
@@ -114,9 +115,13 @@ class Feed(models.Model):
             else:
                 record.is_kyc_complete = False
 
-    def update_kyc_feed(self, response, msg=False):
+    def update_kyc_feed(self, response, msg=False, *args):
         try:
             response_msg = response.get("message_response", "")
+
+            if not response_msg:
+                return process_message(msg, *args)
+
             personal_information = response.get("customer_details", {})
             product_details = response.get("product_details", {})
             odoobot = self.env.ref('base.partner_root')
@@ -137,25 +142,13 @@ class Feed(models.Model):
                 self.write(values)
 
                 return response_msg
-            
-            kyc_response_msg = ""
 
-            if not self.customer_type and not response.get("customer_type", False):
-                # kyc_response_msg += "Buyer or Seller, "
-                pass
-            elif not self.customer_type and response.get("customer_type", False):
+            if not self.customer_type and response.get("customer_type", False):
                 values["customer_type"] = response.get("customer_type")
-            else:
-                pass
 
             for field in REQUIRED_KYC_FIELDS[2::]:
-                if not self[field] and not personal_information.get(field, False):
-                    # kyc_response_msg += self._fields[field].string + ", "
-                    pass
-                elif not self[field] and personal_information.get(field, False):
+                if not self[field] and personal_information.get(field, False):
                     values[field] = personal_information.get(field)
-                else:
-                    pass
 
             for field in ADDITIONAL_KYC_FIELDS:
                 if not self[field] and personal_information.get(field, False):
@@ -164,11 +157,6 @@ class Feed(models.Model):
             for field in EXTRA_PRODUCT_DETAIL_FIELDS:
                 if not self[field] and product_details.get(field, False):
                     values[field] = product_details.get(field)                    
-
-            # if kyc_response_msg:
-            #     response_msg += """\n\nYour KYC is not complete we need some personal details like: """ + kyc_response_msg
-            # else:
-            #     response_msg += """\n\nThank you for the information, we will get back to you soon."""
 
             self.message_post(body=msg)
             self.message_post(body=response_msg, author_id=odoobot.id)

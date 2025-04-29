@@ -58,8 +58,10 @@
                         </group>
                         <notebook colspan="2">
                             <page string="Default Configuration" name="default_configuration">
-                                <group>
-                                    <field name="auto_evaluate" />
+                                <group name="default_confi">
+                                    <group>
+                                        <field name="auto_evaluate" />
+                                    </group>
                                 </group>
                             </page>
                         </notebook>

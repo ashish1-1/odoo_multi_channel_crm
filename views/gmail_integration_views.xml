@@ -66,7 +66,9 @@
                                     <button name="open_cron_view"
                                             string="Configure Watch Cron"
                                             type="object"
-                                            class="btn btn-outline-secondary"/>
+                                            class="btn btn-outline-secondary"
+                                            context="{'cron_view_id': 'setup_gmail_watch_topic' }"
+                                            />
                                 </div>
                             </div>
                         </div>
@@ -76,6 +78,13 @@
                 <xpath expr="//button[@name='test_connection']" position="before">
                     <button name="gmail_connection" string="Connect Gmail" icon="fa-link"
                                 type="object" class="oe_highlight" invisible="channel != 'gmail' or state == 'connected'"/>
+                </xpath>
+
+                <xpath expr="//header" position="inside">
+                    <button string="Token Refresh Cron" name="open_cron_view" type="object" class="oe_highlight" 
+                    context="{'cron_view_id': 'gmail_token_refresh' }"
+                    invisible="channel != 'gmail' or state != 'connected'"
+                    />
                 </xpath>
             </field>
         </record>

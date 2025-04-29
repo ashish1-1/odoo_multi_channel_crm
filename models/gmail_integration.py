@@ -33,6 +33,8 @@ class GmailIntegration(models.Model):
                 super()._compute_callback_url()
 
     def test_gmail_connection(self):
+        if not self:
+            self = self.env['multi.channel.crm'].search([('channel', '=', 'gmail')], limit=1)
         if not self.refresh_token:
             raise  UserError("First Click on the Connect Gmail Button")
         url = "https://oauth2.googleapis.com/token"
@@ -110,10 +112,11 @@ class GmailIntegration(models.Model):
         return True
 
     def open_cron_view(self):
+        context = self._context
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'ir.cron',
-            'res_id':self.env.ref('odoo_multi_channel_crm.setup_gmail_watch_topic').id,
+            'res_id':self.env.ref(f'odoo_multi_channel_crm.{context.get("cron_view_id")}').id,
             'view_mode': 'form',
             'target': 'self',
         }

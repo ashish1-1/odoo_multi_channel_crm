@@ -75,7 +75,7 @@ class ChannelWebhook(http.Controller):
                 request.env.cr.execute(query)
                 _logger.info(f"===================== Gmail Webhook received")
                 # TODO: Process message here
-                _logger.info(f"===================== {json.dumps(json_data, indent=4)}")
+                # _logger.info(f"===================== {json.dumps(json_data, indent=4)}")
                 gmail_api = channel.get_gmail_api()
                 res = gmail_api.handle_message(decoded_data)
                 if not res:
