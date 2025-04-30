@@ -41,5 +41,6 @@ class WhatsAppIntegaration(models.Model):
             wa_api._test_connection()
             self.state = 'connected'
         except Exception as e:
+            self.state = 'error'
             raise UserError(str(e))
         return True

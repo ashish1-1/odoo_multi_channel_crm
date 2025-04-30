@@ -115,12 +115,12 @@ class Feed(models.Model):
             else:
                 record.is_kyc_complete = False
 
-    def update_kyc_feed(self, response, msg=False, *args):
+    def update_kyc_feed(self, response, msg=False, **args):
         try:
             response_msg = response.get("message_response", "")
 
             if not response_msg:
-                return process_message(msg, *args)
+                return process_message(msg, **args)
 
             personal_information = response.get("customer_details", {})
             product_details = response.get("product_details", {})
