@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="inherit_linkedIn_integration" model="ir.ui.view">
+            <field name="name">inherit.linkedIn.integration.view.form.inherit</field>
+            <field name="model">multi.channel.crm</field>
+            <field name="inherit_id" ref="odoo_multi_channel_crm.multi_channel_crm_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='default_configuration']" position="before">
+                    <page string="Credentials" name="credentials" 
+                    invisible="channel != 'linkedIn'"
+                    >
+                    <div class="row mt16 o_settings_container" id="tosend_msg">
+                        <setting documentation="https://www.linkedin.com/developers/apps">
+                            <field name="api_key" required="channel == 'linkedIn'" string="Client ID" placeholder="e.g. 86umz2nqtjperf"/>
+                        </setting>
+                        <setting documentation="https://www.linkedin.com/developers/apps">
+                            <field name="secret_key" string="Client Secret" required="channel == 'linkedIn'" placeholder="e.g. WPL_AP1.9yltJOjgrtiNVcwsdOmYLXQ=="/>
+                        </setting>
+                        <setting>
+                            <field name="redirect_url" widget="CopyClipboardText"/>
+                        </setting>
+                        <setting>
+                            <field name="access_token" groups="base.group_no_one"/>
+                        </setting>
+                    </div>
+                    <h4 class="mt16">LinkedIn App Account <a href="https://developer.linkedin.com/" title="Documentation" class="o_doc_link" target="_blank"></a></h4>
+                    </page>
+                </xpath>
+
+                <xpath expr="//button[@name='test_connection']" position="attributes">
+                    <attribute name="invisible">channel == 'linkedIn' and state == 'connected'</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

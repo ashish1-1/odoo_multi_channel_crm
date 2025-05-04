@@ -8,3 +8,7 @@ from . import channel_contact_mapping
 from . import channel_lead_mapping
 from . import crm_lead
 from . import category_model
+from . import linkedIn_integration
+from . import instagram_integration
+from . import facebook_integration
+from . import twitter_integration

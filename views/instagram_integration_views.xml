@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="inherit_insta_integration" model="ir.ui.view">
+            <field name="name">inherit.insta.integration.view.form.inherit</field>
+            <field name="model">multi.channel.crm</field>
+            <field name="inherit_id" ref="odoo_multi_channel_crm.multi_channel_crm_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='default_configuration']" position="before">
+                    <page string="Credentials" name="credentials" 
+                    invisible="channel != 'insta'"
+                    >
+                    <div class="row mt16 o_settings_container" id="tosend_msg">
+                        <setting documentation="">
+                            <field name="api_key" required="channel == 'insta'" string="Instagram app ID" placeholder="e.g. 41225984069751558"/>
+                        </setting>
+                        <setting documentation="">
+                            <field name="secret_key" string="Instagram app secret" required="channel == 'insta'" placeholder="e.g. 18fbbfcbd4342407bd67963d53544558"/>
+                        </setting>
+                        <setting>
+                            <field name="redirect_url" widget="CopyClipboardText"/>
+                        </setting>
+                        <setting>
+                            <field name="callback_url" widget="CopyClipboardText"/>
+                        </setting>
+                        <setting>
+                            <field name="access_token" groups="base.group_no_one"/>
+                        </setting>
+                    </div>
+                    <h4 class="mt16">Instagram App Account <a href="" title="Documentation" class="o_doc_link" target="_blank"></a></h4>
+                    </page>
+                </xpath>
+
+                <xpath expr="//button[@name='test_connection']" position="before">
+                    <button name="insta_connection" string="Connect Instagram" icon="fa-link"
+                                type="object" class="oe_highlight" invisible="channel != 'insta' or state == 'connected'"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

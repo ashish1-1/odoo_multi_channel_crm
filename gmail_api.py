@@ -22,6 +22,7 @@ class GmailApi:
 
         message_info = self.get_message_from_historyId(rest_history_id)
         if not message_info:
+            request.env['ir.config_parameter'].sudo().set_param('odoo_multi_channel_crm.history_id', historyId)
             logging.info("===================== No Message Info Found")
             return False
 

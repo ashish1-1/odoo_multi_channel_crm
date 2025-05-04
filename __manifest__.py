@@ -1,6 +1,6 @@
 {
     "name":"Odoo Multi Channel CRM",
-    "version": '1.0',
+    "version": '1.0.0',
     "sequence":10,
     "category": 'Other',
     "depends": ['mail', 'crm'],
@@ -9,6 +9,10 @@
         'views/multi_channel_crm_views.xml',
         'views/whatsapp_integration_views.xml',
         'views/gmail_integration_views.xml',
+        'views/linkedIn_integration_view.xml',
+        'views/instagram_integration_views.xml',
+        'views/facebook_integration_views.xml',
+        'views/twitter_integration_views.xml',
         'views/kyc_feed.xml',
         'views/res_config_settings_views.xml',
         'views/channel_contact_mapping.xml',

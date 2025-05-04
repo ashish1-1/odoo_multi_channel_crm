@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="inherit_twitter_integration" model="ir.ui.view">
+            <field name="name">inherit.twitter.integration.view.form.inherit</field>
+            <field name="model">multi.channel.crm</field>
+            <field name="inherit_id" ref="odoo_multi_channel_crm.multi_channel_crm_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='default_configuration']" position="before">
+                    <page string="Credentials" name="credentials" 
+                    invisible="channel != 'twitter'"
+                    >
+                    <div class="row mt16 o_settings_container" id="tosend_msg">
+                        <setting documentation="">
+                            <field name="api_key" required="channel == 'twitter'" string="Client ID" placeholder="e.g. 41225984069751558"/>
+                        </setting>
+                        <setting documentation="">
+                            <field name="secret_key" string="Client Secret" required="channel == 'twitter'" placeholder="e.g. 18fbbfcbd4342407bd67963d53544558"/>
+                        </setting>
+                        <setting>
+                            <field name="redirect_url" widget="CopyClipboardText"/>
+                        </setting>
+                        <setting>
+                            <field name="callback_url" widget="CopyClipboardText"/>
+                        </setting>
+                        <setting>
+                            <field name="access_token" groups="base.group_no_one"/>
+                        </setting>
+                    </div>
+                    <h4 class="mt16">Twitter App Account <a href="" title="Documentation" class="o_doc_link" target="_blank"></a></h4>
+                    </page>
+                </xpath>
+
+                <xpath expr="//button[@name='test_connection']" position="before">
+                    <button name="twitter_connection" string="Connect Twitter" icon="fa-link"
+                                type="object" class="oe_highlight" invisible="channel != 'twitter' or state == 'connected'"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

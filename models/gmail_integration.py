@@ -68,7 +68,6 @@ class GmailIntegration(models.Model):
             'prompt': 'consent',
         }
         full_url = f"{base_url}?{urlencode(params)}"
-        print(full_url)
         return {
             'type': 'ir.actions.act_url',
             'target': 'self',

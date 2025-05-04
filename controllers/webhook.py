@@ -21,7 +21,7 @@ class ChannelWebhook(http.Controller):
                 return False
             if mode and token:
                 if mode == "subscribe" and token == channel.verify_token:
-                    logging.info("================ WEBHOOK_VERIFIED")
+                    logging.info(f"================ WEBHOOK_VERIFIED === {platform}")
                     return challenge
                 else:
                     # Responds with '403 Forbidden' if verify tokens do not match
@@ -89,18 +89,3 @@ class ChannelWebhook(http.Controller):
         except Exception as e:
             _logger.exception(f"Webhook error occurred : {str(e)}")
             return {"status": "error", "detail": str(e)}
-
-
-# Gmail Webhook Data:
-"""
-{
-    'message': {
-        'data': 'eyJlbWFpbEFkZHJlc3MiOiJkZW1vb2RvbzI5QGdtYWlsLmNvbSIsImhpc3RvcnlJZCI6MzUxMH0=',
-        'messageId': '13929224991390464',
-        'message_id': '13929224991390464',
-        'publishTime': '2025-04-18T14:12:54.058Z',
-        'publish_time': '2025-04-18T14:12:54.058Z'
-    },
-    'subscription': 'projects/lucid-mariner-457114-e3/subscriptions/odoo'
-}
-"""
