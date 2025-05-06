@@ -5,7 +5,7 @@ from ..ai_msg_clasification.msg_classification import process_message
 
 REQUIRED_KYC_FIELDS = ["customer_type", "products_list", "name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link"]
 ADDITIONAL_KYC_FIELDS = ["continent", "customer_language", "country_language"]
-EXTRA_PRODUCT_DETAIL_FIELDS = ["loading_port", "monthly_quantity", "current_quantity", "loading_weight", "taregt_price"]
+EXTRA_PRODUCT_DETAIL_FIELDS = ["loading_port", "monthly_quantity", "current_quantity", "loading_weight", "target_price"]
 
 STATE = [
     ('draft', 'Grey List'),
@@ -44,7 +44,7 @@ class Feed(models.Model):
     monthly_quantity = fields.Char(string="Monthly Quantity")
     current_quantity = fields.Char(string="Current quantity")
     loading_weight = fields.Char(string="Loading weight", help="Loading weight in each container")
-    taregt_price = fields.Char(string="Taregt Price", help="Taregt price FOB/CNF basis")
+    target_price = fields.Char(string="Target Price", help="Target price FOB/CNF basis")
 
     # Product related information fields
     category = fields.Char(string="Categroy")
@@ -131,17 +131,6 @@ class Feed(models.Model):
 
             if not self.products_list and response.get("products_list", []):
                 values["products_list"] = response.get("products_list")
-            
-            if self.user_msg_count + 1 > 4:
-                values["kyc_state"] = "error"
-
-            if self.is_kyc_complete:
-                self.message_post(body=msg)
-                self.message_post(body=response_msg, author_id=odoobot.id)
-                values["msg_contents_history"] = self.update_msg_history(msg, response_msg)
-                self.write(values)
-
-                return response_msg
 
             if not self.customer_type and response.get("customer_type", False):
                 values["customer_type"] = response.get("customer_type")
@@ -163,6 +152,9 @@ class Feed(models.Model):
             values["msg_contents_history"] = self.update_msg_history(msg, response_msg)
             self.write(values)
             
+            if self.user_msg_count + 1 > 4 and not self.is_kyc_complete:
+                self.kyc_state = "error"
+
             if self.is_kyc_complete and self.channel_id.auto_evaluate:
                 self.feed_evaluate()
             

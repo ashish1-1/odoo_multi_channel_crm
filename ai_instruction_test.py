@@ -75,7 +75,7 @@ Output format:
         "monthly_quantity": "Qty in ton",
         "current_quantity": "Qty in ton",
         "loading_weight": "Weight in ton",
-        "taregt_price": "Price as per the country currency"
+        "target_price": "Price as per the country currency"
     },    
     "message_response": "Short, user-friendly summary or reply to the message"
 }

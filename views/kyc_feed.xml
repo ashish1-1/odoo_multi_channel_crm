@@ -125,7 +125,7 @@
                                         <field name="monthly_quantity" />
                                         <field name="current_quantity" />
                                         <field name="loading_weight" />
-                                        <field name="taregt_price" />
+                                        <field name="target_price" />
                                     </group>
                                     <group>
                                         <field name="products_list" />

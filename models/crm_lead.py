@@ -8,7 +8,7 @@ class CrmLead(models.Model):
     monthly_quantity = fields.Char(string="Monthly Quantity")
     current_quantity = fields.Char(string="Current quantity")
     loading_weight = fields.Char(string="Loading weight", help="Loading weight in each container")
-    taregt_price = fields.Char(string="Taregt Price", help="Taregt price FOB/CNF basis")
+    target_price = fields.Char(string="Target Price", help="Target price FOB/CNF basis")
     customer_type = fields.Selection(string='Customer Type',selection=[('buyer', 'Buyer'), ('seller', 'Seller')])
 
     lead_type_id = fields.Many2one(
