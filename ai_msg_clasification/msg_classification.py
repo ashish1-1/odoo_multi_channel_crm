@@ -177,7 +177,7 @@ def process_message(msg, identification_code=False, name=False, channel_id=False
         response = msg_clf.examine_msg(msg, content_list)
 
         if additional_msg:
-            msg.replace(additional_msg, "")
+            msg = msg.replace(additional_msg, "")
 
         logging.info(f"=================== AI RESPONSE: {response}")
         response_msg = kyc_feed_sudo.update_kyc_feed(response, msg, identification_code=identification_code, name=name, channel_id=channel_id)

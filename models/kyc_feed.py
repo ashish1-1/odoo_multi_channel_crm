@@ -1,4 +1,5 @@
 import logging
+from markupsafe import Markup
 from odoo import models, fields, api, _
 
 from ..ai_msg_clasification.msg_classification import process_message
@@ -147,8 +148,8 @@ class Feed(models.Model):
                 if not self[field] and product_details.get(field, False):
                     values[field] = product_details.get(field)                    
 
-            self.message_post(body=msg)
-            self.message_post(body=response_msg, author_id=odoobot.id)
+            self.message_post(body=Markup(f"<pre>{msg}</pre>"))
+            self.message_post(body=Markup(f"<pre>{response_msg}</pre>"), author_id=odoobot.id)
             values["msg_contents_history"] = self.update_msg_history(msg, response_msg)
             self.write(values)
             
