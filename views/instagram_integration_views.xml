@@ -26,6 +26,12 @@
                         <setting>
                             <field name="access_token" groups="base.group_no_one"/>
                         </setting>
+                        <setting>
+                            <field name="ig_account_id"/>
+                        </setting>
+                        <setting>
+                            <field name="verify_token" widget="CopyClipboardText"/>
+                        </setting>
                     </div>
                     <h4 class="mt16">Instagram App Account <a href="" title="Documentation" class="o_doc_link" target="_blank"></a></h4>
                     </page>

@@ -81,9 +81,12 @@ class ChannelWebhook(http.Controller):
                 if not res:
                     _logger.info(f"===================== Gmail Webhook Handle Message Issue")
                 return res
-
+            elif platform == 'instagram':
+                instagram_api = channel.get_instagram_api()
+                return instagram_api.handle_message(json_data)
             else:
                 _logger.info("Unknown platform: %s", platform)
+                _logger.info("json_data: %s", json_data)
                 return {"status": "ignored", "reason": "Unknown platform"}
 
         except Exception as e:

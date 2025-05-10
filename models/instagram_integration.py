@@ -2,6 +2,7 @@ from odoo import models, fields
 from werkzeug.urls import url_encode
 from odoo.http import request
 from odoo.exceptions import UserError
+from ..instagram_api import InstagramApi
 import requests
 
 
@@ -10,6 +11,7 @@ _INSTA_SCOPE = "instagram_business_basic instagram_business_manage_messages inst
 class InstagramIntegration(models.Model):
     _inherit = 'multi.channel.crm'
 
+    ig_account_id = fields.Char(string="Instagram Account ID")
 
     def _get_channel(self):
         res = super()._get_channel()
@@ -40,7 +42,7 @@ class InstagramIntegration(models.Model):
         }
         return {
             'type': 'ir.actions.act_url',
-            'url': 'https://www.instagram.com/oauth/authorize?%s' % url_encode(params),
+            'url': 'https://api.instagram.com/oauth/authorize?%s' % url_encode(params),
             'target': 'self'
         }
 
@@ -60,3 +62,12 @@ class InstagramIntegration(models.Model):
             self.access_token = access_token
         else:
             raise UserError(response.json())
+
+    def get_instagram_api(self):
+        channel = self
+        channel_id = self.id
+        access_token = self.access_token
+        api_key = self.api_key
+        secret_key = self.secret_key
+        ig_account = self.ig_account_id
+        return InstagramApi(channel=channel, channel_id=channel_id, access_token=access_token, api_key=api_key, secret_key=secret_key, ig_account=ig_account)
