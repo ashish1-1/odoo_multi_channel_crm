@@ -82,7 +82,13 @@ class ChannelWebhook(http.Controller):
                 state = kwargs.get('state')
                 code = kwargs.get('code')
                 if state == channel.verify_token:
-                    access_token = self._get_twitter_access_token(code, channel.api_key, channel.secret_key, channel.redirect_url, channel.verify_token)
+                    response = self._get_twitter_access_token(code, channel.api_key, channel.secret_key, channel.redirect_url, channel.verify_token)
+                    if response:
+                        channel.write({
+                                'access_token':response.get('access_token'),
+                                'refresh_token':response.get('refresh_token'),
+                                'state':'connected',
+                            })
             else:
                 logging.info("=================No CHANNEL FOUND FOR THE REDIRECT")
         action_id = request.env.ref('odoo_multi_channel_crm.multi_channel_crm_view_action').id
@@ -175,7 +181,7 @@ class ChannelWebhook(http.Controller):
             _logger.error(f"Exception Raise From FaceBook Token : {e}")
             return ''
         if 'error' in data:
-            _logger.error(f"Error Message From Facebook Access Token : {data.get('error',{}).get('message')}")
+            _logger.error(f"Error Message From Facebook Short Live Access Token : {data.get('error',{}).get('message')}")
             return ''
         if response.ok:
             access_token = data.get('access_token')
@@ -198,7 +204,7 @@ class ChannelWebhook(http.Controller):
             _logger.error(f"Exception Raise From FaceBook Token : {e}")
             return ''
         if 'error' in data:
-            _logger.error(f"Error Message From Facebook Access Token : {data.get('error',{}).get('message')}")
+            _logger.error(f"Error Message From Facebook Long Live Access Token : {data.get('error',{}).get('message')}")
             return ''
         if response.ok:
             token = data.get('access_token')
@@ -206,14 +212,12 @@ class ChannelWebhook(http.Controller):
 
     def _get_twitter_access_token(self, code, client_id, client_secret, redirect_uri, code_verifier):
         url = "https://api.x.com/2/oauth2/token"
-        credentials = f"{client_id}:{client_secret}"
         data = {
-            'grant_type':'authorization_code',
             'code':code,
-            'redirect_uri':redirect_uri,
+            'grant_type':'authorization_code',
             'client_id':client_id,
+            'redirect_uri':redirect_uri,
             'code_verifier':code_verifier,
-            'Authorization':'Basic '+base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
         }
         try:
             response = requests.post(url, data=data, headers={'Content-Type':'application/x-www-form-urlencoded'})
@@ -225,5 +229,4 @@ class ChannelWebhook(http.Controller):
             _logger.error(f"Error Message From Twitter Access Token : {data}")
             return ''
         if response.ok:
-            token = data.get('access_token')
-            return token
+            return data

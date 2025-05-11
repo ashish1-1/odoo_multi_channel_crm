@@ -24,10 +24,13 @@
                             <field name="callback_url" widget="CopyClipboardText"/>
                         </setting>
                         <setting>
-                            <field name="verify_token"/>
+                            <field name="verify_token" widget="CopyClipboardText"/>
                         </setting>
                         <setting>
                             <field name="access_token" groups="base.group_no_one"/>
+                        </setting>
+                        <setting>
+                            <field name="fb_page_id"/>
                         </setting>
                     </div>
                     <h4 class="mt16">Facebook App Account <a href="" title="Documentation" class="o_doc_link" target="_blank"></a></h4>
@@ -37,6 +40,10 @@
                 <xpath expr="//button[@name='test_connection']" position="before">
                     <button name="fb_connection" string="Connect Facebook" icon="fa-link"
                                 type="object" class="oe_highlight" invisible="channel != 'fb' or state == 'connected'"/>
+                </xpath>
+                <xpath expr="//button[@name='set_to_draft']" position="after">
+                    <button name="get_facebook_page" string="GET FACEBOOK PAGE" icon="fa-file"
+                                type="object" class="oe_highlight" invisible="channel != 'fb'"/>
                 </xpath>
             </field>
         </record>

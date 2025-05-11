@@ -1,7 +1,6 @@
 from odoo import http
 from odoo.http import request
-import logging, json, re
-from ..whatsApp_api import WhatsAppApi
+import logging, json
 import base64
 
 _logger = logging.getLogger(__name__)
@@ -84,6 +83,9 @@ class ChannelWebhook(http.Controller):
             elif platform == 'instagram':
                 instagram_api = channel.get_instagram_api()
                 return instagram_api.handle_message(json_data)
+            elif platform == 'facebook':
+                facebook_api = channel.get_facebook_api()
+                return facebook_api.handle_message(json_data)
             else:
                 _logger.info("Unknown platform: %s", platform)
                 _logger.info("json_data: %s", json_data)

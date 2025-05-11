@@ -11,3 +11,4 @@ access_sub_categ,access.sub.categ,model_sub_categ,base.group_user,1,1,1,0
 access_child_categ,access.child.categ,model_child_categ,base.group_user,1,1,1,0
 access_sub_child_categ,access.sub.child.categ,model_sub_child_categ,base.group_user,1,1,1,0
 access_form_form,access.form.form,model_form_form,base.group_user,1,1,1,0
+access_facebook_page,access_facebook_page,model_facebook_page,base.group_user,1,1,1,0

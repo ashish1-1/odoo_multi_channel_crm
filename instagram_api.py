@@ -30,6 +30,7 @@ class InstagramApi:
             _logger.error(f"INSTAGRAM DATA NOT FOUND : {data}")
             return False
         obj = data.get('object')
+        result = False
         if obj == 'instagram':
             entry = data['entry'][0] if data.get('entry') else []
             if not entry:
@@ -42,8 +43,7 @@ class InstagramApi:
             if 'messaging' in entry:
                 # Handle Message
                 result = self.handel_ig_message(entry)
-
-            return result
+        return result
 
     def handel_ig_comments(self, entry):
         changes = entry['changes'][0] if entry.get('changes') else []
@@ -65,6 +65,7 @@ class InstagramApi:
                     _logger.error("NO AI REPONSE FOUND")
                     return False
                 return self.send_comment_message(response_msg, from_id, parent_comment_id)
+        return False
             
     def handel_ig_message(self, entry):
         messaging = entry['messaging'][0] if entry.get('messaging') else []
