@@ -21,7 +21,7 @@
 
                 <menuitem
                     id="kyc_feed_menu"
-                    name="KYC Feed"
+                    name="Customer Feed"
                     action="kyc_feed_view_action"
                     parent="odoo_multi_channel_crm_menu_feed"
                     sequence="10"/>
@@ -59,6 +59,16 @@
                     parent="odoo_multi_channel_crm_menu_configuration" 
                     action="odoo_multi_channel_crm_config_settings_action" 
                     groups="base.group_system" 
+                    sequence="10"/>
+
+            <!-- CORE MENU INHERIT -->
+            <menuitem id="product_menu_crm"
+                name="Products"
+                parent="crm.crm_menu_root"
+                sequence="3"/>
+                <menuitem id="menu_product_template_action"
+                    action="product.product_template_action_all"
+                    parent="product_menu_crm"
                     sequence="10"/>
     </data>
 </odoo>

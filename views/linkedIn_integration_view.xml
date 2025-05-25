@@ -21,6 +21,9 @@
                             <field name="redirect_url" widget="CopyClipboardText"/>
                         </setting>
                         <setting>
+                            <field name="callback_url" widget="CopyClipboardText"/>
+                        </setting>
+                        <setting>
                             <field name="access_token" groups="base.group_no_one"/>
                         </setting>
                     </div>

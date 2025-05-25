@@ -6,27 +6,52 @@
             <field name="model">crm.lead</field>
             <field name="inherit_id" ref="crm.crm_lead_view_form"/>
             <field name="arch" type="xml">
+                <xpath expr="//group[@name='lead_priority']" position="after">
+                    <group>
+                        <field name="customer_type"/>
+                        <field name="channel_id" widget="selection" readonly="1"/>
+                    </group>
+                </xpath>
+                
                 <xpath expr="//page[@name='internal_notes']" position="before">
                     <page name="business_info" string="Business Information">
-                        <group>
-                            <group name="business_related_information" string="Business Related Information">
-                                <field name="loading_port" />
+                        <group name="business_related_information" string="Business Related Information">
+                            <group>
                                 <field name="monthly_quantity" />
                                 <field name="current_quantity" />
-                                <field name="loading_weight" />
-                                <field name="target_price" />
+                                    <field name="target_price" invisible="customer_type == 'seller'"/>
+                                    <field name="fob_price" invisible="customer_type == 'buyer'"/>
                             </group>
-                            <group name="product_info" string="Product Category Information">
-                                <field name="channel_id" widget="selection"/>
-                                <field name="lead_type_id" widget="selection"/>
-                                <field name="categ_ids" widget="many2many_tags"/>
-                                <field name="sub_categ_ids" widget="many2many_tags"/>
-                                <field name="child_categ_ids" widget="many2many_tags"/>
-                                <field name="sub_child_categ_ids" widget="many2many_tags"/>
-                                <field name="form_ids" widget="many2many_tags"/>
+                            <group>
+                                <field name="loading_port" />
+                                <field name="loading_weight" />
                             </group>
                         </group>
+                        <group name="product_info" string="Product Information">
+                            <field name="product_ids" nolabel="1" colspan="2">
+                                <tree>
+                                    <field name="crm_categ_id" />
+                                    <field name="default_code" string="Product"/>
+                                    <field name="name" optional="hide"/>
+                                    <field name="forms_id" />
+                                    <field name="sub_categ_id" />
+                                    <field name="child_categ_id" optional="hide"/>
+                                    <field name="sub_child_categ_id" optional="hide"/>
+                                </tree>
+                            </field>
+                        </group>
                     </page>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="crm_case_kanban_view_leads_crm" model="ir.ui.view">
+            <field name="name">crm.opportunity.inherited.kanban.inehrit</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.crm_case_kanban_view_leads" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='tag_ids']" position="after">
+                    <field class="rounded-pill badge bg-success text-light" name="channel_id" options="{'no_open': True}"/>
                 </xpath>
             </field>
         </record>

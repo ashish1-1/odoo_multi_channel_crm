@@ -119,23 +119,23 @@
                         
                         <notebook>
                             <page name="business_info" string="Business Information">
-                                <group name="product_info" string="Product Information">
-                                    <group>
+                                <group name="product_info">
+                                    <group string="Transactional Information">
                                         <field name="loading_port" />
                                         <field name="monthly_quantity" />
                                         <field name="current_quantity" />
                                         <field name="loading_weight" />
-                                        <field name="target_price" />
+                                        <field name="target_price" invisible="customer_type == 'seller'"/>
+                                        <field name="fob_price" invisible="customer_type == 'buyer'"/>
                                     </group>
-                                    <group>
+                                    <group string="Product Information">
                                         <field name="products_list" />
                                         <field name="category" />
-                                        <field name="sub_category" />
                                         <field name="forms" />
                                     </group>
                                 </group>
                             </page>
-                            <page name="kyc_info" string="KYC Information">
+                            <page name="kyc_info" string="Customer Information">
                                 <group>
                                     <group name="customer_information" string="Customer Information">
                                         <field name="name" />
@@ -167,7 +167,7 @@
         </record>
 
         <record id="kyc_feed_view_action" model="ir.actions.act_window">
-            <field name="name">KYC Feed</field>
+            <field name="name">Customer Feed</field>
             <field name="res_model">kyc.feed</field>
             <field name="view_mode">tree,form</field>
             <field name="view_id" ref="kyc_feed_view_tree"/>

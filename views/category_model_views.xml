@@ -7,43 +7,40 @@
         sequence="15"
         groups="base.group_no_one"/>
 
-	<record id="lead_type_tree_view" model="ir.ui.view">
-        <field name="name">lead.type.tree.view</field>
-        <field name="model">lead.type</field>
+
+	<record id="categ_categ_tree_view" model="ir.ui.view">
+        <field name="name">categ.categ.tree.view</field>
+        <field name="model">categ.categ</field>
         <field name="arch" type="xml">
-	        <tree string="Lead Type" editable="top">
+	        <tree string="Category">
 		        <field name="sequence" widget="handle"/>
 		        <field name="name"/>
 	        </tree>
         </field>
     </record>
 
-	<record id="lead_type_action" model="ir.actions.act_window">
-        <field name="name">Lead Type</field>
-        <field name="res_model">lead.type</field>
-        <field name="view_mode">tree</field>
-        <field name="target">current</field>
-    </record>
-
-	<menuitem id="lead_type_menu"
-        action="lead_type_action"
-        parent="menu_category"/>
-
-	<record id="categ_categ_tree_view" model="ir.ui.view">
-        <field name="name">categ.categ.tree.view</field>
+    <record id="categ_categ_view_form" model="ir.ui.view">
+        <field name="name">categ_categ.view.form</field>
         <field name="model">categ.categ</field>
         <field name="arch" type="xml">
-	        <tree string="Category" editable="top">
-		        <field name="sequence" widget="handle"/>
-		        <field name="name"/>
-	        </tree>
+            <form string="">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                        </group>
+                        <separator string="Sub Category" colspan="4" />
+                        <field name="sub_categ_ids" widget='one2many_list' nolabel="1" colspan="2"/>
+                    </group>
+                </sheet>
+            </form>
         </field>
     </record>
 
 	<record id="categ_categ_action" model="ir.actions.act_window">
         <field name="name">Category</field>
         <field name="res_model">categ.categ</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">tree,form</field>
         <field name="target">current</field>
     </record>
 
@@ -55,17 +52,38 @@
         <field name="name">sub.categ.tree.view</field>
         <field name="model">sub.categ</field>
         <field name="arch" type="xml">
-	        <tree string="Sub Category" editable="top">
+	        <tree string="Sub Category">
 		        <field name="sequence" widget="handle"/>
 		        <field name="name"/>
 	        </tree>
         </field>
     </record>
 
+    <record id="sub_categ_view_form" model="ir.ui.view">
+        <field name="name">sub_categ.view.form</field>
+        <field name="model">sub.categ</field>
+        <field name="arch" type="xml">
+            <form string="">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="categ_id" />
+                        </group>
+                        <separator string="Child Category" colspan="4" />
+                        <field name="child_categ_ids" widget='one2many_list' nolabel="1" colspan="2"/>
+                        <separator string="Forms" colspan="4" />
+                        <field name="forms_ids" widget='one2many_list' nolabel="1" colspan="2"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
 	<record id="sub_categ_action" model="ir.actions.act_window">
         <field name="name">Sub Category</field>
         <field name="res_model">sub.categ</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">tree,form</field>
         <field name="target">current</field>
     </record>
 
@@ -77,17 +95,34 @@
         <field name="name">child.categ.tree.view</field>
         <field name="model">child.categ</field>
         <field name="arch" type="xml">
-	        <tree string="Child Category" editable="top">
+	        <tree string="Child Category">
 		        <field name="sequence" widget="handle"/>
 		        <field name="name"/>
 	        </tree>
         </field>
     </record>
 
+    <record id="child_categ_view_form" model="ir.ui.view">
+        <field name="name">child_categ.view.form</field>
+        <field name="model">child.categ</field>
+        <field name="arch" type="xml">
+            <form string="">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="sub_categ_id" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
 	<record id="child_categ_action" model="ir.actions.act_window">
         <field name="name">Child Category</field>
         <field name="res_model">child.categ</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">tree,form</field>
         <field name="target">current</field>
     </record>
 
@@ -121,17 +156,34 @@
         <field name="name">form.form.tree.view</field>
         <field name="model">form.form</field>
         <field name="arch" type="xml">
-	        <tree string="Category Form" editable="top">
+	        <tree string="Category Form">
 		        <field name="sequence" widget="handle"/>
 		        <field name="name"/>
 	        </tree>
         </field>
     </record>
 
+    <record id="form_form_view_form" model="ir.ui.view">
+        <field name="name">form_form.view.form</field>
+        <field name="model">form.form</field>
+        <field name="arch" type="xml">
+            <form string="">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="sub_categ_id" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
 	<record id="form_form_action" model="ir.actions.act_window">
         <field name="name">Category Form</field>
         <field name="res_model">form.form</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">tree,form</field>
         <field name="target">current</field>
     </record>
 

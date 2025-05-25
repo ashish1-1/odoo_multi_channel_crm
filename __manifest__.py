@@ -18,6 +18,8 @@
         'views/channel_contact_mapping.xml',
         'views/channel_lead_mapping.xml',
         'views/crm_lead_views.xml',
+        'views/res_partner_view.xml',
+        'views/product_template_views.xml',
         'views/category_model_views.xml',
         'data/ir_cron_data.xml',
         'views/menu.xml',

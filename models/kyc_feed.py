@@ -1,12 +1,13 @@
 import logging
 from markupsafe import Markup
 from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 
 from ..ai_msg_clasification.msg_classification import process_message
 
 REQUIRED_KYC_FIELDS = ["customer_type", "products_list", "name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link"]
 ADDITIONAL_KYC_FIELDS = ["continent", "customer_language", "country_language"]
-EXTRA_PRODUCT_DETAIL_FIELDS = ["loading_port", "monthly_quantity", "current_quantity", "loading_weight", "target_price"]
+EXTRA_PRODUCT_DETAIL_FIELDS = ["loading_port", "monthly_quantity", "current_quantity", "loading_weight", "target_price", 'forms']
 
 STATE = [
     ('draft', 'Grey List'),
@@ -14,10 +15,6 @@ STATE = [
     ('error', 'Red List')
 ]
 
-CHANNEL = [
-    ('whatsapp', 'WhatsApp'),
-    ('gmail', 'Gmail'),
-]
 class Feed(models.Model):
     _name = "kyc.feed"
     _inherit = ['mail.thread']
@@ -41,15 +38,15 @@ class Feed(models.Model):
     country_language = fields.Char(string="Country Language")
     
     # Business related fields
-    loading_port = fields.Char(string="Loading Port")
+    loading_port = fields.Char(string="POL/POD")
     monthly_quantity = fields.Char(string="Monthly Quantity")
     current_quantity = fields.Char(string="Current quantity")
     loading_weight = fields.Char(string="Loading weight", help="Loading weight in each container")
-    target_price = fields.Char(string="Target Price", help="Target price FOB/CNF basis")
+    target_price = fields.Char(string="Target Price", help="Target price")
+    fob_price = fields.Char(string="FOB Price", help="FOB price")
 
     # Product related information fields
     category = fields.Char(string="Categroy")
-    sub_category = fields.Char(string="Sub Categroy")
     forms = fields.Char(string="Forms")
     
     channel_id = fields.Many2one(
@@ -100,11 +97,9 @@ class Feed(models.Model):
                 and record.email
                 and record.isd_code
                 and record.phone
-                and record.address
                 and record.city
                 and record.state
                 and record.country
-                and record.website_link
                 and record.customer_type
                 and record.products_list
             ):
@@ -178,43 +173,102 @@ class Feed(models.Model):
         contact_mapping = self.env['channel.contact.mapping']
         lead_mapping = self.env['channel.lead.mapping']
         for rec in self:
-            domain = [('store_partner_id', '=', rec.email)]
-            match = contact_mapping.search(domain, limit=1)
-            if not match:
-                company_id = self.env['res.partner'].create({'name':rec.company_name, 'company_type':'company'})
+            partner = rec.match_partner()
+            if not partner:
                 partner_vals = {
                     'name':rec.name,
                     'email':rec.email,
                     'website':rec.website_link,
                     'phone':rec.isd_code + rec.phone,
-                    'parent_id': company_id.id if company_id else False,
+                    'crm_phone':rec.phone,
+                    'company_name': rec.company_name,
                     'street':rec.address,
                     'city':rec.city,
                     'country_id':self.get_odoo_country(rec.country),
                     'state_id':self.get_odoo_state(rec.state)
                 }
                 partner = self.env['res.partner'].create(partner_vals)
-                if partner:
-                    lead_vals = {
-                        'name':rec.lead_name,
-                        'partner_id':partner.id
-                    }
-                    lead = self.env['crm.lead'].create(lead_vals)
-                    if lead:
-                        lead_mapping.create({'lead_id':lead.id, 'lead_name':lead.name, 'channel_id':rec.channel_id.id})
-                        contact_mapping.create({'partner_id':partner.id, 'store_partner_id':partner.email, 'channel_id':rec.channel_id.id})
+                contact_mapping.create({'partner_id':partner.id, 'store_partner_id':partner.company_name, 'channel_id':rec.channel_id.id})
+            if not (rec.lead_name or partner):
+                rec.kyc_state = 'error'
+                return False
+            lead_vals = {
+                    'name':rec.lead_name,
+                    'partner_id':partner.id,
+                    'customer_type':rec.customer_type,
+                    'channel_id':rec.channel_id.id,
+                    'monthly_quantity':rec.monthly_quantity,
+                    'current_quantity':rec.current_quantity,
+                    'target_price':rec.target_price,
+                    'fob_price':rec.fob_price,
+                    'loading_port':rec.loading_port,
+                    'loading_weight':rec.loading_weight,
+                }
 
-                        # Update The Kyc State:
-                        if not rec.kyc_state == 'done':
-                            rec.kyc_state = 'done'
+            products_list = self.get_product(rec.products_list, rec.category, rec.forms)
+            if not products_list:
+                rec.kyc_state = 'error'
+                return False
 
+            lead_vals.update({'product_ids':products_list})
+            lead = self.env['crm.lead'].create(lead_vals)
+            lead_mapping.create({'lead_id':lead.id, 'lead_name':lead.name, 'channel_id':rec.channel_id.id})
+            # Update The Kyc State:
+            if not rec.kyc_state == 'done':
+                rec.kyc_state = 'done'
+
+    def get_product(self, products, category, form):
+        product_ids = []
+        if not products:
+            return product_ids
+        products = list(map(str.strip, products.split(",")))
+        product_obj = self.env['product.template']
+        for product in products:
+            domain = ["|", ("name", "ilike", product), ("default_code", "ilike", product)]
+            if form:
+                domain.append(("forms_id.name", "ilike", form))
+            match = product_obj.search(domain, limit=1)
+
+            if not match:
+                # GET DOMAIN VALUE FROM AI WITH DFFERENT VALUES e.g., ['P1','P2',....]
+                AI_VALUES = self.get_ai_product_different_values()
+                domain = ["|", ("name", "in", AI_VALUES), ("default_code", "in", AI_VALUES)]
+                match = product_obj.search(domain, limit=1)
+
+            if not match:
+                return []
+            product_ids.append(match.id)
+        return product_ids
+             
+
+    def match_partner(self):
+        # CHECK CUSTOMER MAPPING
+        contact_mapping = self.env['channel.contact.mapping']
+        domain = [("store_partner_id", "ilike", self.company_name)]
+        match = contact_mapping.search(domain, limit=1)
+        if not match:
+            # CHECK ODOO CUSTOMER
+            res_partner = self.env['res.partner']
+            domain = [
+                "|", "|", 
+                ("company_name", "ilike", self.company_name), 
+                ("email", "=", self.email), 
+                ("crm_phone", "=", self.phone), 
+            ]
+            if self.website_link:
+                domain = ["|"] + domain.append(("website", "ilike", self.website_link))
+            match = res_partner.search(domain, limit=1)
+        return match
+            
+    def get_ai_product_different_values(self):
+        return []
 
     def get_odoo_country(self, country):
-        country_id = self.env['res.country'].search([('name','=',country)], limit=1)
+        country_id = self.env['res.country'].search([('name','ilike',country)], limit=1)
         return country_id.id if country_id else False
 
     def get_odoo_state(self, state):
-        state_id = self.env['res.country.state'].search([('name','=',state)], limit=1)
+        state_id = self.env['res.country.state'].search([('name','ilike',state)], limit=1)
         return state_id.id if state_id else False
 
     def open_mapping_view(self):
