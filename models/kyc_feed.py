@@ -1,13 +1,15 @@
 import logging
+import json
 from markupsafe import Markup
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
 from ..ai_msg_clasification.msg_classification import process_message
+from ..ai_msg_clasification.small_ai_queries import process_query
 
 REQUIRED_KYC_FIELDS = ["customer_type", "products_list", "name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link"]
 ADDITIONAL_KYC_FIELDS = ["continent", "customer_language", "country_language"]
-EXTRA_PRODUCT_DETAIL_FIELDS = ["loading_port", "monthly_quantity", "current_quantity", "loading_weight", "target_price", 'forms']
+EXTRA_PRODUCT_DETAIL_FIELDS = ["loading_port", "monthly_quantity", "current_quantity", "loading_weight", "target_price", 'category', 'forms']
 
 STATE = [
     ('draft', 'Grey List'),
@@ -116,7 +118,8 @@ class Feed(models.Model):
             response_msg = response.get("message_response", "")
 
             if not response_msg:
-                return process_message(msg, **args)
+                limit = args.pop("limit") + 1
+                return process_message(msg, limit=limit, **args)
 
             personal_information = response.get("customer_details", {})
             product_details = response.get("product_details", {})
@@ -145,10 +148,10 @@ class Feed(models.Model):
 
             self.message_post(body=Markup(f"<pre>{msg}</pre>"))
             self.message_post(body=Markup(f"<pre>{response_msg}</pre>"), author_id=odoobot.id)
-            values["msg_contents_history"] = self.update_msg_history(msg, response_msg)
+            values["msg_contents_history"] = self.update_msg_history(msg, response)
             self.write(values)
             
-            if self.user_msg_count + 1 > 4 and not self.is_kyc_complete:
+            if self.user_msg_count + 1 > 6 and not self.is_kyc_complete:
                 self.kyc_state = "error"
 
             if self.is_kyc_complete and self.channel_id.auto_evaluate:
@@ -159,12 +162,12 @@ class Feed(models.Model):
             logging.error(f"Updaing kyc feed failed: {e}")
             return "Failed to process your Information. \nWe will get back to you soon."
 
-    def update_msg_history(self, msg, response_msg):
+    def update_msg_history(self, msg, response):
         content_list = self.msg_contents_history or []
 
         content_list += [
             {"user": msg},
-            {"model": response_msg},
+            {"model": json.dumps(response)},
         ]
 
         return content_list
@@ -231,7 +234,8 @@ class Feed(models.Model):
 
             if not match:
                 # GET DOMAIN VALUE FROM AI WITH DFFERENT VALUES e.g., ['P1','P2',....]
-                AI_VALUES = self.get_ai_product_different_values()
+                query, SI = self.get_query_to_fetch_alternate_products_names(product)
+                AI_VALUES = process_query(query, SI)
                 domain = ["|", ("name", "in", AI_VALUES), ("default_code", "in", AI_VALUES)]
                 match = product_obj.search(domain, limit=1)
 
@@ -256,12 +260,9 @@ class Feed(models.Model):
                 ("crm_phone", "=", self.phone), 
             ]
             if self.website_link:
-                domain = ["|"] + domain.append(("website", "ilike", self.website_link))
+                domain = ["|"] + domain.appsend(("website", "ilike", self.website_link))
             match = res_partner.search(domain, limit=1)
         return match
-            
-    def get_ai_product_different_values(self):
-        return []
 
     def get_odoo_country(self, country):
         country_id = self.env['res.country'].search([('name','ilike',country)], limit=1)
@@ -291,3 +292,6 @@ class Feed(models.Model):
         )
         action.update(view_mode='form', res_id=res.id) if len(res) == 1 else action.update(view_mode='tree', domain=[('id', 'in', res.ids)])
         return action
+
+    def get_query_to_fetch_alternate_products_names(self, product_name):
+        return f"All different names for {product_name}.", "Do not provide the extra text, only Provide a list of string values in JSON Format."

@@ -20,7 +20,7 @@ class MessageClassification:
                 self.client = genai.Client(
                     api_key=self.api_key,
                 )
-                self.model = "gemini-2.5-pro-exp-03-25"
+                self.model = "gemini-2.5-flash-preview-05-20"
             except Exception as e:
                 logging.error(f"Failed to create client: {e}")
 
@@ -144,14 +144,14 @@ class MessageClassification:
             pass
 
 
-def process_message(msg, identification_code=False, name=False, channel_id=False):
+def process_message(msg, identification_code=False, name=False, channel_id=False, limit=0):
     ai_model = request.env['ir.config_parameter'].sudo().get_param('odoo_multi_channel_crm.ai_model')
     api_key = request.env['ir.config_parameter'].sudo().get_param('odoo_multi_channel_crm.api_key')
 
     if not ai_model or not api_key:
         logging.error(f"Complete your Ai configration")
 
-    if identification_code:
+    if identification_code and limit < 3:
         additional_msg = ""
         kyc_feed_sudo = request.env['kyc.feed'].sudo().search(
             [('identification_code', '=', identification_code)]).exists()
@@ -169,7 +169,7 @@ def process_message(msg, identification_code=False, name=False, channel_id=False
                 additional_msg = f"\n\n my name is {name}. \nmy contact number is +{identification_code}"
                 msg += additional_msg
 
-        if kyc_feed_sudo.kyc_state in ["error", "done"] or kyc_feed_sudo.user_msg_count + 1 > 4:
+        if kyc_feed_sudo.kyc_state in ["error", "done"] or kyc_feed_sudo.user_msg_count + 1 > 6:
             return "We will get back to you soon"
 
         content_list = kyc_feed_sudo.msg_contents_history or []
@@ -180,7 +180,7 @@ def process_message(msg, identification_code=False, name=False, channel_id=False
             msg = msg.replace(additional_msg, "")
 
         logging.info(f"=================== AI RESPONSE: {response}")
-        response_msg = kyc_feed_sudo.update_kyc_feed(response, msg, identification_code=identification_code, name=name, channel_id=channel_id)
+        response_msg = kyc_feed_sudo.update_kyc_feed(response, msg, identification_code=identification_code, name=name, channel_id=channel_id, limit=limit)
 
         return response_msg or msg
 
