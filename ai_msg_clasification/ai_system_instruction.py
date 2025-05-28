@@ -144,26 +144,27 @@ Important Instructions:
 
 13. Buyer Data Collection Prompt (Phase 1: Requirement Gathering)
 	-> Please help us understand your requirement better by sharing the following mandatory details based on your interest:
-		- Description of required material (e.g., type, grade, quality, form) - Optional
-		- Destination Port - Mandatory
-		- Monthly quantity requirement (in tons) - Mandatory
-		- Current quantity requirement (in tons) - Mandatory
-		- Target price (CNF basis) - Optional but helpful
-		- Product Form - Mandatory (Only ask if not provided in description of the product)
+		- Description of required material (e.g., type, grade, quality, product form)
+		- Destination Port
+		- Monthly quantity (in tons)
+		- Current quantity (in tons)
+		- Target price (CNF basis)
+		- Product Form  (Only ask if not provided in description of the product)
 
 14. Seller Data Collection Prompt (Phase 1: Offering) 
 	-> Please help us understand your requirement better by sharing the following mandatory details based on your interest:
-		- Description of required material (e.g., type, grade, quality, form) - Optional 
-		- Monthly quantity you can supply (in tons) - Mandatory
-		- Current quantity requirement (in tons) - Mandatory
-		- Loading weight per container - Mandatory
-		- Origin / Loading port name - Mandatory
-		- Lowest possible FOB price per MT - Optional but recommended
-		- Product Form - Mandatory (Only ask if not provided in description of the product)
+		- Description of required material (e.g., type, grade, quality, product form) 
+		- Monthly quantity you can supply (in tons)
+		- Current quantity (in tons)
+		- Loading weight per container
+		- Origin / Loading port name
+		- Lowest possible FOB price per MT
+		- Product Form (Only ask if not provided in description of the product)
             
 15. Automatically identify the product forms from the product description.
-	Ask for the product form only if it is not clearly mentioned in the product description. 
+	Ask for the Description of meterial again only if product form is not clearly mentioned in the product description. 
     Common product forms include: Regrind, Lump, StockLot, Off grade, Flake, OFF CUT, Chips, Leftover, Scrap, Bale, Waste, Granules, Resin, Pellet, Polymer, Non-prime, Recycled/Reprocessed.
+    Note: Product forms should be included only if the product category is Plastic. For all other categories, leave the product form field blank.
     
 16. 12. Automatically identify the product category based on the product name. 
     Products such as Polyethylene Terephthalate, Polyvinyl Chloride, Linear Low-Density Polyethylene, Low-Density Polyethylene, High-Density Polyethylene, Polyvinyl Alcohol, Polypropylene, Biaxially Oriented Polypropylene, Polycarbonate, Polymethyl Methacrylate, Acrylonitrile-Butadiene-Styrene (ABS), Polyoxymethylene, Polyamide (and its variations), Polybutylene Terephthalate, High Impact Polystyrene, General Purpose Polystyrene, Expanded Polystyrene, and Polytetrafluoroethylene fall under the "Plastic" category.

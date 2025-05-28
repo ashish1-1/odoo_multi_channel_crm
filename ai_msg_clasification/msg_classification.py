@@ -133,6 +133,7 @@ class MessageClassification:
                     temperature=0.01,
                     max_tokens=800
                 )
+                print(f"\n\n=========={completion = }===========\n\n")
                 response_text = completion.choices[0].message.content
                 return self.extract_json(response_text)
                 # return json.loads(response_text)
@@ -153,13 +154,28 @@ def process_message(msg, identification_code=False, name=False, channel_id=False
 
     if identification_code and limit < 3:
         additional_msg = ""
-        kyc_feed_sudo = request.env['kyc.feed'].sudo().search(
-            [('identification_code', '=', identification_code)]).exists()
+        postfix = ""
 
-        if not kyc_feed_sudo:
+        kyc_feed_sudo = request.env['kyc.feed'].sudo().search(
+            [('identification_code', 'ilike', identification_code)], limit=1, order='id desc').exists()
+        
+        if kyc_feed_sudo:
+            feed_identification_code = kyc_feed_sudo.identification_code.split('-')
+            if len(feed_identification_code) > 1:
+                identification_code = "-".join(feed_identification_code[:-1:])
+                postfix = f"-{int(feed_identification_code[-1]) + 1}"
+            else:
+                postfix = "-1"
+
+        if not kyc_feed_sudo or kyc_feed_sudo.kyc_state == 'done' or (
+            kyc_feed_sudo.kyc_state == 'draft' and
+            kyc_feed_sudo.is_kyc_complete and
+            kyc_feed_sudo.products_list and
+            ((kyc_feed_sudo.category.casefold() == 'plastic' and kyc_feed_sudo.forms) or kyc_feed_sudo.category.casefold() != 'plastic')
+        ):
             kyc_feed_sudo = request.env['kyc.feed'].sudo().create({
                 "name": name,
-                "identification_code": identification_code,
+                "identification_code": identification_code + postfix,
                 "msg_contents_history": [],
                 "channel_id": channel_id
             })
@@ -171,6 +187,8 @@ def process_message(msg, identification_code=False, name=False, channel_id=False
 
         if kyc_feed_sudo.kyc_state in ["error", "done"] or kyc_feed_sudo.user_msg_count + 1 > 6:
             return "We will get back to you soon"
+        
+        logging.info(f"=================== MSG TO AI: {msg}")        
 
         content_list = kyc_feed_sudo.msg_contents_history or []
         msg_clf = MessageClassification(ai_model, api_key)
