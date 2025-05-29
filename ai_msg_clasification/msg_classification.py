@@ -173,6 +173,14 @@ def process_message(msg, identification_code=False, name=False, channel_id=False
             kyc_feed_sudo.products_list and
             ((kyc_feed_sudo.category.casefold() == 'plastic' and kyc_feed_sudo.forms) or kyc_feed_sudo.category.casefold() != 'plastic')
         ):
+            
+            kyc_fields = ["name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link", "continent", "customer_language", "country_language"]
+            
+            if kyc_feed_sudo:
+                for field in kyc_fields:
+                    additional_msg += f"\n{field} : {kyc_feed_sudo[field]}"
+            msg += additional_msg
+
             kyc_feed_sudo = request.env['kyc.feed'].sudo().create({
                 "name": name,
                 "identification_code": identification_code + postfix,
@@ -181,7 +189,7 @@ def process_message(msg, identification_code=False, name=False, channel_id=False
             })
 
             channel_sudo = request.env['multi.channel.crm'].sudo().browse(channel_id).exists()
-            if channel_sudo and channel_sudo.channel == 'whatsapp':
+            if channel_sudo and channel_sudo.channel == 'whatsapp' and not additional_msg:
                 additional_msg = f"\n\n my name is {name}. \nmy contact number is +{identification_code}"
                 msg += additional_msg
 
