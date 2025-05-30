@@ -156,6 +156,10 @@ def process_message(msg, identification_code=False, name=False, channel_id=False
         additional_msg = ""
         postfix = ""
 
+        partner_sudo = request.env['res.partner'].sudo().search(
+            ['|', ('email', 'ilike', identification_code), ('crm_phone', 'ilike', identification_code)]
+        ).exists()
+
         kyc_feed_sudo = request.env['kyc.feed'].sudo().search(
             [('identification_code', 'ilike', identification_code)], limit=1, order='id desc').exists()
         
@@ -173,12 +177,25 @@ def process_message(msg, identification_code=False, name=False, channel_id=False
             kyc_feed_sudo.products_list and
             ((kyc_feed_sudo.category.casefold() == 'plastic' and kyc_feed_sudo.forms) or kyc_feed_sudo.category.casefold() != 'plastic')
         ):
-            
+            partner_fields = ["name", "company_name", "email", "mobile", "street", "city", "state", "country", "website"]
             kyc_fields = ["name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link", "continent", "customer_language", "country_language"]
             
             if kyc_feed_sudo:
                 for field in kyc_fields:
                     additional_msg += f"\n{field} : {kyc_feed_sudo[field]}"
+            
+            elif partner_sudo:
+                for field in partner_fields:
+                    if field == 'state':
+                        additional_msg += f"\n{field} : {kyc_feed_sudo['state_id'].name}"
+                    elif field == 'state':
+                        additional_msg += f"\n{field} : {kyc_feed_sudo['country_id'].name}"
+                    else:
+                        additional_msg += f"\n{field} : {kyc_feed_sudo[field]}"
+            
+            else:
+                pass
+
             msg += additional_msg
 
             kyc_feed_sudo = request.env['kyc.feed'].sudo().create({
@@ -202,8 +219,8 @@ def process_message(msg, identification_code=False, name=False, channel_id=False
         msg_clf = MessageClassification(ai_model, api_key)
         response = msg_clf.examine_msg(msg, content_list)
 
-        if additional_msg:
-            msg = msg.replace(additional_msg, "")
+        # if additional_msg:
+        #     msg = msg.replace(additional_msg, "")
 
         logging.info(f"=================== AI RESPONSE: {response}")
         response_msg = kyc_feed_sudo.update_kyc_feed(response, msg, identification_code=identification_code, name=name, channel_id=channel_id, limit=limit)

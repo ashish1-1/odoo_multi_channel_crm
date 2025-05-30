@@ -9,7 +9,7 @@ from ..ai_msg_clasification.small_ai_queries import process_query
 
 REQUIRED_KYC_FIELDS = ["customer_type", "products_list", "name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link"]
 ADDITIONAL_KYC_FIELDS = ["continent", "customer_language", "country_language"]
-EXTRA_PRODUCT_DETAIL_FIELDS = ["loading_port", "monthly_quantity", "current_quantity", "loading_weight", "target_price", 'category', 'forms']
+EXTRA_PRODUCT_DETAIL_FIELDS = ["loading_port", "monthly_quantity", "current_quantity", "loading_weight", "target_price", 'fob_price', 'category', 'forms']
 
 STATE = [
     ('draft', 'Grey List'),
