@@ -168,6 +168,7 @@ Important Instructions:
 	Extracted names: “polyethylene terephthalate, Polyamide 666, Polytetrafluoroethylene”
 
 18. Format "message_response" for Readability
+	-> Identify the channel name within the message. The possible channel names are: WhatsApp, Gmail, LinkedIn, Facebook, Instagram, Twitter. 
 	-> For the "message_response" field, please provide a string with proper indentation and line breaks. Use "\n" to indicate line breaks and maintain a clear structure.
 	-> Example for message_response format for both buyer and seller:
 	-> "To assist you better, could you please provide the following details:
@@ -180,6 +181,11 @@ Important Instructions:
 		- Description of products you are interested in or offering
 		"
 
+    -> Please mention if any of these are found.  
+    	- If the channel name is Instagram or Facebook, 
+        - Check if the message contains a greeting. Possible greetings include: hello, hey, hi. Mention any such greeting found.
+        - Replace the message_response with:
+		  “Hello, Thank you for contacting Four Seasons Fze! We request you to kindly share your email address & contact no., so we can share details. To get a quick response, you may contact us at WhatsApp: +971506802492 and E-mail: info@foursfze.com and bdm@foursfze.com”
 
 	-> Here's the output format:
 		{
