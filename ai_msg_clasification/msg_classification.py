@@ -232,7 +232,7 @@ def process_message(msg, identification_code=False, name=False, channel_id=False
             msg += additional_msg
 
             kyc_feed_sudo = request.env['kyc.feed'].sudo().create({
-                "name": name,
+                # "name": name,
                 "identification_code": identification_code + postfix,
                 "msg_contents_history": [],
                 "channel_id": channel_id
