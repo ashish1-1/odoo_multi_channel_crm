@@ -15,7 +15,7 @@
                 
                 <xpath expr="//page[@name='internal_notes']" position="before">
                     <page name="business_info" string="Business Information">
-                        <group name="business_related_information" string="Business Related Information">
+                        <group name="business_related_information" string="Transactional Information">
                             <group>
                                 <field name="monthly_quantity" />
                                 <field name="current_quantity" />

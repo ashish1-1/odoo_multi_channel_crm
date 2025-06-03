@@ -12,7 +12,6 @@
         'views/linkedIn_integration_view.xml',
         'views/instagram_integration_views.xml',
         'views/facebook_integration_views.xml',
-        'views/twitter_integration_views.xml',
         'views/kyc_feed.xml',
         'views/res_config_settings_views.xml',
         'views/channel_contact_mapping.xml',

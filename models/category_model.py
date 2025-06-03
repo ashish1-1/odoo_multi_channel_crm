@@ -15,6 +15,7 @@ class Categ(models.Model):
     sequence = fields.Integer(default=10)
     active = fields.Boolean(default=True, string="Active", copy=False)
     sub_categ_ids = fields.One2many(string='Sub Categories', comodel_name='sub.categ', inverse_name='categ_id')
+    user_id = fields.Many2one(string='User', comodel_name='res.users')
 
 
 class SubCateg(models.Model):

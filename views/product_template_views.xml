@@ -17,17 +17,14 @@
                     <page name="crm" string="CRM">
                         <group name="category" string="Category">
                             <group>
-                                <field name="crm_categ_id" />
-                                <field name="sub_categ_id" />
-                                <field name="child_categ_id" />
-                                <field name="sub_child_categ_id" />
+                                <field name="crm_categ_id" widget="radio" />
+                                <field name="child_categ_id" invisible="sub_categ_id == False" widget="radio"/>
+                                <!-- <field name="sub_child_categ_id" /> -->
                             </group>
                             <group>
-                                <field name="forms_id" />
+                                <field name="sub_categ_id" invisible="crm_categ_id == False" widget="radio"/>
+                                <field name="forms_id" invisible="sub_categ_id == False" widget="radio"/>
                             </group>
-                        </group>
-                        <group name="crm_tags" string="Crm Product Tags">
-                            <field name="product_tag_ids" widget="many2many_tags"/>
                         </group>
                     </page>
                 </xpath>

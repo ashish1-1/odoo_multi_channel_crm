@@ -78,17 +78,6 @@ class ChannelWebhook(http.Controller):
                             'access_token':access_token,
                             'state':'connected',
                         })
-            elif channel.channel == 'twitter':
-                state = kwargs.get('state')
-                code = kwargs.get('code')
-                if state == channel.verify_token:
-                    response = self._get_twitter_access_token(code, channel.api_key, channel.secret_key, channel.redirect_url, channel.verify_token)
-                    if response:
-                        channel.write({
-                                'access_token':response.get('access_token'),
-                                'refresh_token':response.get('refresh_token'),
-                                'state':'connected',
-                            })
             else:
                 logging.info("=================No CHANNEL FOUND FOR THE REDIRECT")
         action_id = request.env.ref('odoo_multi_channel_crm.multi_channel_crm_view_action').id
@@ -209,24 +198,3 @@ class ChannelWebhook(http.Controller):
         if response.ok:
             token = data.get('access_token')
             return token
-
-    def _get_twitter_access_token(self, code, client_id, client_secret, redirect_uri, code_verifier):
-        url = "https://api.x.com/2/oauth2/token"
-        data = {
-            'code':code,
-            'grant_type':'authorization_code',
-            'client_id':client_id,
-            'redirect_uri':redirect_uri,
-            'code_verifier':code_verifier,
-        }
-        try:
-            response = requests.post(url, data=data, headers={'Content-Type':'application/x-www-form-urlencoded'})
-            data = response.json()
-        except Exception as e:
-            _logger.error(f"Exception Raise From Twitter Token : {e}")
-            return ''
-        if 'error' in data:
-            _logger.error(f"Error Message From Twitter Access Token : {data}")
-            return ''
-        if response.ok:
-            return data

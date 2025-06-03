@@ -3,7 +3,9 @@ from email.mime.text import MIMEText
 from odoo.http import request
 from .ai_msg_clasification.msg_classification import process_message
 
-class GmailApi:
+DUPLICATE = set()
+
+class GmailApi:    
     def __init__(self, channel,channel_id, access_token):
         self.channel = channel
         self.channel_id = channel_id
@@ -12,6 +14,7 @@ class GmailApi:
         self.base_url = "https://gmail.googleapis.com"
 
     def handle_message(self, decode_data):
+        global DUPLICATE
         historyId = decode_data.get('historyId', '')
         emailAddress = decode_data.get('emailAddress', '')
 
@@ -29,6 +32,11 @@ class GmailApi:
         message = {}
         if message_info.get('history'):
             history = message_info['history'][0]
+            if history.get('id') in DUPLICATE:
+                logging.info("===================== REPEAT MESSAGE")
+                return False
+            DUPLICATE.add(history.get('id'))
+
             if history.get('messagesAdded'):
                 message = history['messagesAdded'][0].get('message', {})
 
@@ -51,6 +59,7 @@ class GmailApi:
             if not send_resp:
                 logging.info("===================== Send Message Issue")
                 return False
+            DUPLICATE = set()
             request.env['ir.config_parameter'].sudo().set_param('odoo_multi_channel_crm.history_id', historyId)
             return True
         return False
