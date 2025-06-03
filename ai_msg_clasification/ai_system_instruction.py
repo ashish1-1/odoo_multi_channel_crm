@@ -181,7 +181,7 @@ Important Instructions:
 		- Description of products you are interested in or offering
 		"
 
-    -> Please mention if any of these are found.  
+    -> Please mention if all of these are found.  
     	- If the channel name is Instagram or Facebook, 
         - Check if the message contains a greeting. Possible greetings include: hello, hey, hi. Mention any such greeting found.
         - Replace the message_response with:
@@ -190,7 +190,6 @@ Important Instructions:
 	-> Here's the output format:
 		{
 		"customer_type": "seller or buyer",
-		"products_list": "Product1, Product2",
 		"customer_details": {
 			"name": "seller or buyer name",
 			"company_name": "Company Name",

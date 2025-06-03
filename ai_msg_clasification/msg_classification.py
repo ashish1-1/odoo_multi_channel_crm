@@ -30,7 +30,8 @@ class MessageClassification:
                 self.client = OpenAI(
                     api_key=self.api_key
                 )
-                self.model = "gpt-4-turbo"                
+                self.model = "gpt-4.1"                
+                # self.model = "gpt-4-turbo"                
             except Exception as e:
                 logging.error(f"Failed to set OpenAI API key: {e}")
 
@@ -134,7 +135,6 @@ class MessageClassification:
                     temperature=0.01,
                     max_tokens=800
                 )
-                print(f"\n\n=========={completion = }===========\n\n")
                 response_text = completion.choices[0].message.content
                 return self.extract_json(response_text)
                 # return json.loads(response_text)

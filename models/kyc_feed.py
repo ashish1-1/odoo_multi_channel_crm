@@ -128,8 +128,8 @@ class Feed(models.Model):
                 "user_msg_count": self.user_msg_count + 1
             }
 
-            if not self.products_list and response.get("products_list", []):
-                values["products_list"] = response.get("products_list")
+            if not self.products_list and product_details.get("products_list", ""):
+                values["products_list"] = product_details.get("products_list")
 
             if not self.customer_type and response.get("customer_type", False):
                 values["customer_type"] = response.get("customer_type")
