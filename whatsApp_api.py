@@ -72,7 +72,7 @@ class WhatsAppApi:
 
         message = body["entry"][0]["changes"][0]["value"]["messages"][0]
         message_body = message["text"]["body"]
-        logging.info(f"================= Message Body : {message_body}")
+        # logging.info(f"================= Message Body : {message_body}")
         # TODO: implement custom function here
 
         # AI Integration

@@ -50,12 +50,12 @@ class GmailApi:
             logging.info("===================== SENT MESSAGE LABEL FOUND")
             return False
 
-        parse_message, to_email = self.get_message(message.get('id'))
+        parse_message, subject, to_email, messageId = self.get_message(message.get('id'))
         threadId = message.get('threadId')
 
         if parse_message and to_email:
             response_msg = process_message(parse_message, threadId, False, self.channel_id)
-            send_resp = self.send_email(sender="me", to=to_email, subject=None, message_text=response_msg, thread_id=threadId)
+            send_resp = self.send_email(sender="me", to=to_email, subject=subject, message_text=response_msg, thread_id=threadId, messageId=messageId)
             if not send_resp:
                 logging.info("===================== Send Message Issue")
                 return False
@@ -111,6 +111,7 @@ class GmailApi:
             headers_list = message['payload']['headers']
             subject = next((h['value'] for h in headers_list if h['name'] == 'Subject'), '(No Subject)')
             from_email = next((h['value'] for h in headers_list if h['name'] == 'From'), '(Unknown Sender)')
+            message_id_header = next((h['value'] for h in headers_list if h['name'] == 'Message-ID'), None)
             # print("Subject:", subject)
             # print("Snippet:", message.get('snippet'))
             body = ""
@@ -126,20 +127,22 @@ class GmailApi:
                     Subject : {subject}
                     Body    : {body}
                     Email   : {from_email}
-            """, from_email]
+            """, subject, from_email, message_id_header]
         else:
             print("Failed to retrieve message:", response.status_code, response.text)
             return ["", None]
 
 
-    def send_email(self, sender, to, subject, message_text, thread_id):
+    def send_email(self, sender, to, subject, message_text, thread_id, messageId):
         # Build the email
         message = MIMEText(message_text)
-        message['to'] = to
         message['from'] = sender
+        message['to'] = to
         if subject:
             message['subject'] = subject
-
+        if messageId:
+            message['In-Reply-To'] = messageId
+            message['References'] = messageId
         # Encode in base64
         raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
 

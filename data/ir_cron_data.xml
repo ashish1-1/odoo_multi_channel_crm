@@ -5,10 +5,10 @@
            <field name="name">Setup Gmail Watch Topic</field>
            <field name="model_id" ref="model_multi_channel_crm"/>
            <field name="active" eval="True"/>
-           <field name="user_id" ref="base.user_root"/>
            <field name="state">code</field>
            <field name="code">model.setup_gmail_watch_topic(True)</field>
            <field name="user_id" ref="base.user_root"/>
+           <field name="numbercall">-1</field>
            <field name='interval_number'>6</field>
            <field name='interval_type'>days</field>
        </record>
@@ -16,11 +16,11 @@
            <field name="name">Gmail Token Refresh</field>
            <field name="model_id" ref="model_multi_channel_crm"/>
            <field name="active" eval="True"/>
-           <field name="user_id" ref="base.user_root"/>
            <field name="state">code</field>
            <field name="code">model.test_gmail_connection()</field>
            <field name="user_id" ref="base.user_root"/>
-           <field name='interval_number'>40</field>
+           <field name="numbercall">-1</field>
+           <field name='interval_number'>30</field>
            <field name='interval_type'>minutes</field>
        </record>
    </data>
