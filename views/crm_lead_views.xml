@@ -6,10 +6,20 @@
             <field name="model">crm.lead</field>
             <field name="inherit_id" ref="crm.crm_lead_view_form"/>
             <field name="arch" type="xml">
+            <xpath expr="//button[@name='%(crm.action_crm_lead2opportunity_partner)d']" position="after">
+                <button string="Generate Supplier Code" name="generate_supplier_code" type="object" class="btn btn-secondary" data-hotkey="s"
+                invisible="supplier_code != False"/>
+                <button string="Generate Offer Code" name="generate_offer_code" type="object" class="btn btn-secondary" data-hotkey="o"
+                invisible="supplier_code != False and offer_code != False"/>
+            </xpath>
                 <xpath expr="//group[@name='lead_priority']" position="after">
                     <group>
                         <field name="customer_type"/>
                         <field name="channel_id" widget="selection" readonly="1"/>
+                        <field name="supplier_code" readonly="1"/>
+                        <field name="offer_code" readonly="1"/>
+                        <field name="continent" groups="base.group_no_one" />
+                        <field name="category" groups="base.group_no_one"/>
                     </group>
                 </xpath>
                 

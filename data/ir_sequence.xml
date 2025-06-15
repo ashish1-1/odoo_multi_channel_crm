@@ -1,0 +1,19 @@
+<odoo>
+    <data noupdate="0">
+        <record id="supplier_sequence" model="ir.sequence">
+            <field name="name">Supplier Sequence</field>
+            <field name="code">crm.lead.supplier_seq</field>
+            <field name="prefix"></field>
+            <field name="padding">4</field> <!-- makes it 0001, 0002, etc. -->
+            <field name="number_increment">1</field>
+        </record>
+
+         <record id="offer_sequence" model="ir.sequence">
+            <field name="name">Offer Sequence</field>
+            <field name="code">crm.lead.offer_seq</field>
+            <field name="prefix"></field>
+            <field name="padding">4</field> <!-- makes it 0001, 0002, etc. -->
+            <field name="number_increment">1</field>
+        </record>
+    </data>
+</odoo>
