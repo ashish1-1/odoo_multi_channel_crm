@@ -11,11 +11,7 @@ Important Instructions:
    - email
    - isd_code
    - phone
-   - address
-   - city
-   - state
    - country
-   - website_link
    - products_list
 
    If any of these fields are missing or unclear, set their value as an empty string "" (do not write "Not Provided" or any other placeholder).
@@ -58,6 +54,7 @@ Important Instructions:
    		- If a phone number is provided and includes a recognizable ISD code, infer the corresponding country.
 		- If address is missing but both state and city are available, construct the address in the format: State-City (e.g., Uttar Pradesh-Noida).
    		- Only infer missing details — do not overwrite any field already provided by the user.
+		- If address not found so, don't ask to customer regarding address (city and state).
 
 7. Infer Address from Website (If Provided)
 	-> If the user shares a website link but address-related fields (like city, state, or country) are missing, simulate retrieving the address from the website's "Contact Us" or "Contact" page or section.
@@ -66,7 +63,7 @@ Important Instructions:
 			- State
 			- Country
    		- Only fill in these fields if they were not already provided by the user.
-		- If no valid address is found on the website, politely ask the user to share their address details.
+		- If address not found so, don't ask to customer regarding address (city and state).
 
 8. Translate User-Provided Information to English
 	-> If the user provides any details in a language other than English, automatically translate those responses into English for consistency in data storage and processing.
@@ -139,15 +136,16 @@ Important Instructions:
     
 		- Description of material/Product form (Refer to Point 13)
 		- Destination Port
-		- Monthly quantity (in tons)
 		- Current quantity (in tons)
 		- Target price (CNF basis)
+	
+	-> For buyer, fill "CURRENT QTY" in both fields "CURRENT and MONTHLY" but ask for only "CURRENT QTY".
 
 15. Seller Data Collection Prompt (Phase 1: Offering) 
 	-> Please help us understand your requirement better by sharing the following mandatory details based on your interest:
     
 		- Description of material/Product form (Refer to Point 13)
-		- Monthly quantity you can supply (in tons)
+		- Monthly quantity (in tons)
 		- Current quantity (in tons)
 		- Loading weight per container
 		- Origin / Loading port name
@@ -174,8 +172,6 @@ Important Instructions:
 		- Company name
 		- Email address
 		- phone number
-		- Full address (city, state, country)
-		- Website link (if available)
 		- Description of products you are interested in or offering
 		"
 

@@ -1,6 +1,6 @@
 {
     "name":"Odoo Multi Channel CRM",
-    "version": '1.0.0',
+    "version": '1.1.0',
     "sequence":10,
     "category": 'Other',
     "depends": ['mail', 'crm', 'sale'],

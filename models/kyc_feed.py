@@ -97,10 +97,10 @@ class Feed(models.Model):
                 record.name
                 and record.company_name
                 and record.email
-                and record.isd_code
+                # and record.isd_code
                 and record.phone
-                and record.city
-                and record.state
+                # and record.city
+                # and record.state
                 and record.country
                 and record.customer_type
                 and record.products_list
