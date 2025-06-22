@@ -62,6 +62,9 @@
                                     <group>
                                         <field name="auto_evaluate" />
                                     </group>
+                                    <group>
+                                        <field name="auto_reply" />
+                                    </group>
                                 </group>
                             </page>
                         </notebook>

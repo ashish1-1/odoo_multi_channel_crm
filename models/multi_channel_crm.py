@@ -28,6 +28,7 @@ class MultiChannelCrm(models.Model):
     image = fields.Image(max_width=256, max_height=256)
     verify_token = fields.Char(string='Verify Token', readonly=True)
     auto_evaluate = fields.Boolean(string="Auto Evaluate")
+    auto_reply = fields.Boolean(string="Auto Reply", default=True)
     access_token = fields.Char(string='Access Token')
     refresh_token = fields.Char(string='Refresh Token')
     redirect_url = fields.Char(string='Redirect URL', compute='_compute_redirect_url', readonly=True, copy=False)

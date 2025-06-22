@@ -51,11 +51,17 @@ class FacebookApi:
                 if from_id != self.fb_page_id:
                     comment_id = value.get('comment_id')
                     message = value.get('message')
+                    message = f"""
+From : Comment
+{message}
+"""
                     response_msg = process_message(message, from_id, False, self.channel_id)
                     if not response_msg:
                         _logger.error("NO AI REPONSE FOUND")
                         return False
-                    return self.send_comment_message(response_msg, from_id, comment_id)
+                    if self.channel.auto_reply:
+                        return self.send_comment_message(response_msg, from_id, comment_id)
+                    return True
         return False
 
     def handel_fb_message(self, entry):
@@ -78,7 +84,9 @@ class FacebookApi:
         if not response_msg:
             _logger.error("NO AI REPONSE FOUND")
             return False
-        return self.send_message(response_msg, sender_id)
+        if self.channel.auto_reply:
+            return self.send_message(response_msg, sender_id)
+        return True
 
     def send_message(self, message_text, recipient_id):
         url = f"{self.base_url}/{self.version}/me/messages?access_token={self.access_token}"

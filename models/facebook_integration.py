@@ -96,6 +96,7 @@ class FacebookIntegration(models.Model):
 
 class FacebookPage(models.Model):
     _name = "facebook.page"
+    _description = "FaceBook Page"
 
     name = fields.Char(string="Page Name")
     access_token = fields.Char(string="Page Access Token")

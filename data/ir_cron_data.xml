@@ -9,7 +9,7 @@
            <field name="code">model.setup_gmail_watch_topic(True)</field>
            <field name="user_id" ref="base.user_root"/>
            <field name="numbercall">-1</field>
-           <field name='interval_number'>6</field>
+           <field name='interval_number'>5</field>
            <field name='interval_type'>days</field>
        </record>
        <record id="gmail_token_refresh" model="ir.cron">
@@ -22,6 +22,28 @@
            <field name="numbercall">-1</field>
            <field name='interval_number'>30</field>
            <field name='interval_type'>minutes</field>
+       </record>
+       <record id="gmail_webhook_log_unlink" model="ir.cron">
+           <field name="name">Gmail Webhook Log Unlink</field>
+           <field name="model_id" ref="model_gmail_webhook_log"/>
+           <field name="active" eval="True"/>
+           <field name="state">code</field>
+           <field name="code">model.unlink_gmail_webhook_log()</field>
+           <field name="user_id" ref="base.user_root"/>
+           <field name="numbercall">-1</field>
+           <field name='interval_number'>1</field>
+           <field name='interval_type'>days</field>
+       </record>
+       <record id="insta_token_refresh" model="ir.cron">
+           <field name="name">InstaGram Token Refresh</field>
+           <field name="model_id" ref="model_multi_channel_crm"/>
+           <field name="active" eval="True"/>
+           <field name="state">code</field>
+           <field name="code">model.test_insta_connection()</field>
+           <field name="user_id" ref="base.user_root"/>
+           <field name="numbercall">-1</field>
+           <field name='interval_number'>1</field>
+           <field name='interval_type'>months</field>
        </record>
    </data>
 </odoo>

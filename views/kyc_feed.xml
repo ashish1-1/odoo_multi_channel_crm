@@ -46,11 +46,12 @@
             <field name="model">kyc.feed</field>
             <field name="arch" type="xml">
                 <tree decoration-danger="kyc_state=='error'" decoration-success="kyc_state == 'done'" decoration-muted="kyc_state == 'draft'">
-                    <field name="channel_id" decoration-bf="1"/>                   
-                    <field name="customer_type" decoration-bf="1"/>                   
-                    <field name="name" decoration-bf="1"/>                    
-                    <field name="company_name" />                  
-                    <field name="kyc_state" string="State" widget="badge" decoration-danger="kyc_state=='error'" decoration-success="kyc_state == 'done'" decoration-muted="kyc_state == 'draft'"/>                  
+                    <field name="channel_id" decoration-bf="1"/>
+                    <field name="customer_type" decoration-bf="1"/>
+                    <field name="name" decoration-bf="1"/>
+                    <field name="company_name" />
+                    <field name="kyc_state" string="State" widget="badge" decoration-danger="kyc_state=='error'" decoration-success="kyc_state == 'done'" decoration-muted="kyc_state == 'draft'"/>
+                    <field name="create_date" />
                 </tree>
             </field>
         </record>

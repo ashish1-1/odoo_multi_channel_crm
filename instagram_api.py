@@ -60,11 +60,17 @@ class InstagramApi:
             if from_id != self.ig_account:
                 parent_comment_id = value.get('id')
                 text = value.get('text')
+                text = f"""
+From : Comment
+{text}
+"""
                 response_msg = process_message(text, from_id, False, self.channel_id)
                 if not response_msg:
                     _logger.error("NO AI REPONSE FOUND")
                     return False
-                return self.send_comment_message(response_msg, from_id, parent_comment_id)
+                if self.channel.auto_reply:
+                    return self.send_comment_message(response_msg, from_id, parent_comment_id)
+                return True
         return False
             
     def handel_ig_message(self, entry):
@@ -87,7 +93,9 @@ class InstagramApi:
         if not response_msg:
             _logger.error("NO AI REPONSE FOUND")
             return False
-        return self.send_message(response_msg, sender_id)
+        if self.channel.auto_reply:
+            return self.send_message(response_msg, sender_id)
+        return True
 
     def send_message(self, message_text, recipient_id):
         url = f"{self.base_url}/{self.version}/me/messages"

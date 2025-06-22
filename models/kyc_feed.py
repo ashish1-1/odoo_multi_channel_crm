@@ -105,11 +105,17 @@ class Feed(models.Model):
                 and record.customer_type
                 and record.products_list
             ):
-                customer_type = dict(record._fields['customer_type'].selection).get(record.customer_type)
-                record.write({
-                    "is_kyc_complete": True,
-                    "lead_name": record.products_list + " / " + customer_type,
-                })
+                Flag = False
+                if record.customer_type == 'buyer' and (record.loading_port and record.current_quantity):
+                    Flag = True
+                if record.customer_type == 'seller' and (record.loading_port and record.monthly_quantity and record.current_quantity and record.fob_price):
+                    Flag = True
+                if Flag:
+                    customer_type = dict(record._fields['customer_type'].selection).get(record.customer_type)
+                    record.write({
+                        "is_kyc_complete": True,
+                        "lead_name": record.products_list + " / " + customer_type,
+                    })
             else:
                 record.is_kyc_complete = False
 
@@ -209,6 +215,8 @@ class Feed(models.Model):
                     'fob_price':rec.fob_price,
                     'loading_port':rec.loading_port,
                     'loading_weight':rec.loading_weight,
+                    'continent':rec.continent,
+                    'category':rec.category,
                 }
 
             products_list = self.get_product(rec.products_list, rec.category, rec.forms)

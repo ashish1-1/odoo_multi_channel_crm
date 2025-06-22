@@ -55,9 +55,13 @@ class GmailApi:
 
         if parse_message and to_email:
             response_msg = process_message(parse_message, threadId, False, self.channel_id)
-            send_resp = self.send_email(sender="me", to=to_email, subject=subject, message_text=response_msg, thread_id=threadId, messageId=messageId)
+            send_resp = False
+            if self.channel.auto_reply:
+                send_resp = self.send_email(sender="me", to=to_email, subject=subject, message_text=response_msg, thread_id=threadId, messageId=messageId)
+            else:
+                send_resp = True
             if not send_resp:
-                logging.info("===================== Send Message Issue")
+                logging.info("===================== SEND MESSAGE ISSUE")
                 return False
             DUPLICATE = set()
             request.env['ir.config_parameter'].sudo().set_param('odoo_multi_channel_crm.history_id', historyId)
@@ -112,8 +116,7 @@ class GmailApi:
             subject = next((h['value'] for h in headers_list if h['name'] == 'Subject'), '(No Subject)')
             from_email = next((h['value'] for h in headers_list if h['name'] == 'From'), '(Unknown Sender)')
             message_id_header = next((h['value'] for h in headers_list if h['name'] == 'Message-ID'), None)
-            # print("Subject:", subject)
-            # print("Snippet:", message.get('snippet'))
+
             body = ""
             parts = message['payload'].get('parts', [])
             for part in parts:
@@ -122,7 +125,6 @@ class GmailApi:
                     if data:
                         decoded_bytes = base64.urlsafe_b64decode(data)
                         body = decoded_bytes.decode('utf-8')
-                        # print("Body: ", body)
             return [f"""
                     Subject : {subject}
                     Body    : {body}
@@ -134,7 +136,6 @@ class GmailApi:
 
 
     def send_email(self, sender, to, subject, message_text, thread_id, messageId):
-        # Build the email
         message = MIMEText(message_text)
         message['from'] = sender
         message['to'] = to
@@ -143,10 +144,8 @@ class GmailApi:
         if messageId:
             message['In-Reply-To'] = messageId
             message['References'] = messageId
-        # Encode in base64
         raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
 
-        # Gmail API endpoint
         url = 'https://gmail.googleapis.com/gmail/v1/users/me/messages/send'
         headers = {
             'Authorization': f'Bearer {self.access_token}',
@@ -158,9 +157,7 @@ class GmailApi:
         if thread_id:
             payload['threadId'] = thread_id
 
-        # Send email
         response = requests.post(url, headers=headers, json=payload)
-        # print(response.status_code, response.text)
         if response.ok:
             logging.info(f"Email sent successfully to {to}")
             return True

@@ -30,7 +30,6 @@ class WhatsAppApi:
         Returns:
             response: A tuple containing a JSON response and an HTTP status code.
         """
-        # logging.info(f"request body: {body}")
         # Check if it's a WhatsApp status update
         if (
             body.get("entry", [{}])[0]
@@ -72,14 +71,14 @@ class WhatsAppApi:
 
         message = body["entry"][0]["changes"][0]["value"]["messages"][0]
         message_body = message["text"]["body"]
-        # logging.info(f"================= Message Body : {message_body}")
-        # TODO: implement custom function here
 
         # AI Integration
         response_msg = process_message(message_body, wa_id, name, self.channel_id)
 
         data = self.get_text_message_input(wa_id, response_msg)
-        self.send_message(data)
+        if self.channel.auto_reply:
+            self.send_message(data)
+            logging.info(f"================= WHATSAPP MESSAGE SEND")
 
     def process_text_for_whatsapp(self,text):
         # Remove brackets

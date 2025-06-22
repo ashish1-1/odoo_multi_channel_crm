@@ -193,7 +193,11 @@ def process_message(msg, identification_code=False, name=False, channel_id=False
         if not kyc_feed_sudo and not partner_sudo:
             SI = get_system_instructions()
             response = process_query(msg, SI)
-            unique_code = response.get('unique_code', False)
+            unique_code  = ""
+
+            if isinstance(response, dict):
+                unique_code = response.get('unique_code', False)
+
             if unique_code:
                 partner_sudo = request.env['res.partner'].sudo().search(
                     ['|', '|', '|', '|', '|', ('crm_phone', 'ilike', unique_code), ('email', 'ilike', unique_code), ('website', 'ilike', unique_code), ('website', 'ilike', unique_code), ('phone', 'ilike', unique_code), ('mobile', 'ilike', unique_code)], limit=1

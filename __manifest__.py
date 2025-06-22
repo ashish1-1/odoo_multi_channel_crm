@@ -3,6 +3,7 @@
     "version": '1.1.0',
     "sequence":10,
     "category": 'Other',
+    'license': 'AGPL-3',
     "depends": ['mail', 'crm', 'sale'],
     "data":[
         'security/ir.model.access.csv',
@@ -21,6 +22,7 @@
         'views/product_template_views.xml',
         'views/category_model_views.xml',
         'data/ir_cron_data.xml',
+        'data/ir_sequence.xml',
         'views/menu.xml',
     ],
     'external_dependencies': {
