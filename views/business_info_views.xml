@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="business_info_view_tree" model="ir.ui.view">
+            <field name="name">business_info.view.tree</field>
+            <field name="model">business.information</field>
+            <field name="arch" type="xml">
+                <tree string="">
+                    <field name="product" />
+                    <field name="category" />
+                    <field name="forms" />
+                    <field name="loading_port" />
+                    <field name="monthly_quantity" />
+                    <field name="current_quantity" />
+                    <field name="loading_weight" />
+                    <field name="target_price" />
+                    <field name="fob_price" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="business_information_view_action" model="ir.actions.act_window">
+            <field name="name">Business Information</field>
+            <field name="res_model">business.information</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="business_info_view_tree"/>
+        </record>
+        
+
+    </data>
+</odoo>

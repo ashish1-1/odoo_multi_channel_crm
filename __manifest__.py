@@ -14,6 +14,7 @@
         'views/instagram_integration_views.xml',
         'views/facebook_integration_views.xml',
         'views/kyc_feed.xml',
+        'views/business_info_views.xml',
         'views/res_config_settings_views.xml',
         'views/channel_contact_mapping.xml',
         'views/channel_lead_mapping.xml',

@@ -163,7 +163,10 @@ Important Instructions:
 	Original list: "polyethylene terephthalate Regrind, Polyamide 666 Flake, Polytetrafluoroethylene Pellet"
 	Extracted names: “polyethylene terephthalate, Polyamide 666, Polytetrafluoroethylene”
 
-18. Format "message_response" for Readability
+18. If more than one products found, and they not give the transactional detail (like monthly qty, POL/POD, loadding weight) as per customer type - seller or buyer, In the above task I have already menthion which detail are required for which type customer.
+So my concern on whenever more than one products found in the message and for specific product they not give the transactional detail so ask for those details for that specific product. and give output as mention below.
+
+19. Format "message_response" for Readability
 	-> Identify the channel name within the message. The possible channel names are: WhatsApp, Gmail, LinkedIn, Facebook, Instagram. 
 	-> For the "message_response" field, please provide a string with proper indentation and line breaks. Use "\n" to indicate line breaks and maintain a clear structure.
 	-> Example for message_response format for both buyer and seller:
@@ -210,17 +213,19 @@ Important Instructions:
 			"continent": "Continent based on country",
 			"country_language": "Primary language(s) of the provided country"        
 		},
-		"product_details": {
-			"products_list": "Product1, Product2",
-			"loading_port": "Destination/Loading Port location",
-			"monthly_quantity": "Qty in tons",
-			"current_quantity": "Qty in tons",
-			"loading_weight": "Weight in tons",
-			"target_price": "Price as per the country currency"
-            "fob_price": "Price as per the country currency"
-            "category": "Product Category",
-            "forms": "Product forms"
-		},    
+		"product_details":{
+			[{
+				"product": "Product Name"
+				"loading_port": "Destination/Loading Port location",
+				"monthly_quantity": "Qty in tons",
+				"current_quantity": "Qty in tons",
+				"loading_weight": "Weight in tons",
+				"target_price": "Price as per the country currency"
+				"fob_price": "Price as per the country currency"
+				"category": "Product Category",
+				"forms": "Product forms"
+				}, ...,] as for same more products
+		} 
 		"message_response": "Short, user-friendly summary or reply to the message"
 	}
 """

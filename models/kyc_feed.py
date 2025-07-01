@@ -81,6 +81,14 @@ class Feed(models.Model):
         string='user_msg_count',
         default=0,
     )
+
+    
+    business_info_ids = fields.One2many(
+        string='Business Information',
+        comodel_name='business.information',
+        inverse_name='kyc_feed_id',
+    )
+    
     
     _sql_constraints = [
         (

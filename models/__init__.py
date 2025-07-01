@@ -13,3 +13,4 @@ from . import instagram_integration
 from . import facebook_integration
 from . import product_template
 from . import res_partner
+from . import business_information

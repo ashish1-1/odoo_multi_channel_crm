@@ -157,6 +157,12 @@
                                     </group>
                                 </group>
                             </page>
+                            <page name="information" string="Information">
+                                <group>
+                                    <field name="business_info_ids" nolabel="1" colspan="2">
+                                    </field>
+                                </group>
+                            </page>
                         </notebook>
                     </sheet>
                     <!-- Chatter -->
