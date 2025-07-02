@@ -213,8 +213,8 @@ So my concern on whenever more than one products found in the message and for sp
 			"continent": "Continent based on country",
 			"country_language": "Primary language(s) of the provided country"        
 		},
-		"product_details":{
-			[{
+		"product_details": [
+        	{
 				"product": "Product Name"
 				"loading_port": "Destination/Loading Port location",
 				"monthly_quantity": "Qty in tons",
@@ -224,8 +224,9 @@ So my concern on whenever more than one products found in the message and for sp
 				"fob_price": "Price as per the country currency"
 				"category": "Product Category",
 				"forms": "Product forms"
-				}, ...,] as for same more products
-		} 
+			}, ...,
+		] as for same more products
+
 		"message_response": "Short, user-friendly summary or reply to the message"
 	}
 """

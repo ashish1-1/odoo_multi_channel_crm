@@ -19,5 +19,6 @@ class BusinessInformation(models.Model):
     kyc_feed_id = fields.Many2one(
         string='Feed ID',
         comodel_name='kyc.feed',
+        ondelete='cascade'
     )
     

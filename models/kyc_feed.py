@@ -1,7 +1,7 @@
 import logging
 import json
 from markupsafe import Markup
-from odoo import models, fields, api, _
+from odoo import models, fields, api, _, Command
 from odoo.exceptions import UserError
 
 from ..ai_msg_clasification.msg_classification import process_message
@@ -89,6 +89,18 @@ class Feed(models.Model):
         inverse_name='kyc_feed_id',
     )
     
+    is_ready_for_lead_creation = fields.Boolean(
+        string='is_ready_for_lead_creation',
+        compute='_compute_is_ready_for_lead_creation'
+    )
+        
+        
+    @api.depends('is_kyc_complete', 'business_info_ids')
+    def _compute_is_ready_for_lead_creation(self):
+        for record in self:
+            # Add all the conditions to got_required_business_info
+            got_required_business_info = True
+            record.is_ready_for_lead_creation = record.is_kyc_complete and got_required_business_info
     
     _sql_constraints = [
         (
@@ -136,14 +148,14 @@ class Feed(models.Model):
                 return process_message(msg, limit=limit, **args)
 
             personal_information = response.get("customer_details", {})
-            product_details = response.get("product_details", {})
+            product_details = response.get("product_details", [])
             odoobot = self.env.ref('base.partner_root')
             values = {
                 "user_msg_count": self.user_msg_count + 1
             }
 
-            if not self.products_list and product_details.get("products_list", ""):
-                values["products_list"] = product_details.get("products_list")
+            # if not self.products_list and product_details.get("products_list", ""):
+            #     values["products_list"] = product_details.get("products_list")
 
             if not self.customer_type and response.get("customer_type", False):
                 values["customer_type"] = response.get("customer_type")
@@ -156,9 +168,13 @@ class Feed(models.Model):
                 if not self[field] and personal_information.get(field, False):
                     values[field] = personal_information.get(field)
 
-            for field in EXTRA_PRODUCT_DETAIL_FIELDS:
-                if not self[field] and product_details.get(field, False):
-                    values[field] = product_details.get(field)                    
+            self.business_info_ids.unlink()
+
+            values["business_info_ids"] = [Command.create(vals) for vals in product_details]
+
+            # for field in EXTRA_PRODUCT_DETAIL_FIELDS:
+            #     if not self[field] and product_details.get(field, False):
+            #         values[field] = product_details.get(field)
 
             self.message_post(body=Markup(f"<pre>{msg}</pre>"))
             self.message_post(body=Markup(f"<pre>{response_msg}</pre>"), author_id=odoobot.id)

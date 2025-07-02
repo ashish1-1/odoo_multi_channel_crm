@@ -206,12 +206,13 @@ def process_message(msg, identification_code=False, name=False, channel_id=False
                 kyc_feed_sudo = request.env['kyc.feed'].sudo().search(
                     [('identification_code', 'ilike', unique_code)], limit=1, order='id desc').exists()
 
-        if not kyc_feed_sudo or kyc_feed_sudo.kyc_state == 'done' or (
-            kyc_feed_sudo.kyc_state == 'draft' and
-            kyc_feed_sudo.is_kyc_complete and
-            kyc_feed_sudo.products_list and
-            ((kyc_feed_sudo.category.casefold() == 'plastic' and kyc_feed_sudo.forms) or kyc_feed_sudo.category.casefold() != 'plastic')
-        ):
+        if not kyc_feed_sudo or kyc_feed_sudo.kyc_state == 'done' or kyc_feed_sudo.is_ready_for_lead_creation:
+        # if not kyc_feed_sudo or kyc_feed_sudo.kyc_state == 'done' or (
+        #     kyc_feed_sudo.kyc_state == 'draft' and
+        #     kyc_feed_sudo.is_kyc_complete and
+        #     kyc_feed_sudo.products_list and
+        #     ((kyc_feed_sudo.category.casefold() == 'plastic' and kyc_feed_sudo.forms) or kyc_feed_sudo.category.casefold() != 'plastic')
+        # ):
             partner_fields = ["name", "company_name", "email", "mobile", "street", "city", "state", "country", "website"]
             kyc_fields = ["name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link", "continent", "customer_language", "country_language"]
             
