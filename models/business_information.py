@@ -21,4 +21,8 @@ class BusinessInformation(models.Model):
         comodel_name='kyc.feed',
         ondelete='cascade'
     )
+    lead_id = fields.Many2one(
+        string='Lead',
+        comodel_name='crm.lead',
+    )
     

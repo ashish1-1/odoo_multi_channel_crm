@@ -19,6 +19,34 @@
             </field>
         </record>
 
+        <record id="business_info_view_form" model="ir.ui.view">
+            <field name="name">business_info.view.form</field>
+            <field name="model">business.information</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group name="product_info">
+                            <group string="Transactional Information">
+                                <field name="loading_port" />
+                                <field name="monthly_quantity" />
+                                <field name="current_quantity" />
+                                <field name="loading_weight" />
+                                <field name="target_price" />
+                                <field name="fob_price" />
+                                <field name="kyc_feed_id" groups="base.group_no_one" readonly="1"/>
+                                <field name="lead_id" groups="base.group_no_one" readonly="0"/>
+                            </group>
+                            <group string="Product Information">
+                                <field name="product" />
+                                <field name="category" />
+                                <field name="forms" />
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
         <record id="business_information_view_action" model="ir.actions.act_window">
             <field name="name">Business Information</field>
             <field name="res_model">business.information</field>

@@ -70,5 +70,9 @@
                     action="product.product_template_action_all"
                     parent="product_menu_crm"
                     sequence="10"/>
+
+            <menuitem id="seller_offer_code_menu"
+                action="seller_offer_code_action"
+                parent="menu_category"/>
     </data>
 </odoo>

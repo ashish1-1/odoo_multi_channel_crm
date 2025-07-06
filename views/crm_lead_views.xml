@@ -6,34 +6,28 @@
             <field name="model">crm.lead</field>
             <field name="inherit_id" ref="crm.crm_lead_view_form"/>
             <field name="arch" type="xml">
-            <xpath expr="//header/button[@name='iap_enrich'][2]" position="after">
-                <button string="Generate Supplier Code" name="generate_supplier_code" type="object" class="btn btn-primary" invisible="supplier_code != False or channel_id == False or customer_type in ['buyer', False]" icon="fa-industry"/>
-                <button string="Generate Offer Code" name="generate_offer_code" type="object" class="btn btn-success" invisible="(supplier_code != False and offer_code != False) or channel_id == False or customer_type in ['buyer', False]" icon="fa-gift"/>
-            </xpath>
                 <xpath expr="//group[@name='lead_priority']" position="after">
                     <group>
                         <field name="customer_type"/>
                         <field name="channel_id" widget="selection" readonly="1"/>
-                        <field name="supplier_code" readonly="1" widget="badge"/>
-                        <field name="offer_code" readonly="1" widget="badge"/>
-                        <field name="continent" groups="base.group_no_one" />
-                        <field name="category" groups="base.group_no_one"/>
+                        <field name="supplier_code" readonly="1" widget="badge" invisible="customer_type == 'buyer'"/>
+                        <field name="continent" groups="base.group_no_one" invisible="customer_type == 'buyer'"/>
                     </group>
                 </xpath>
                 
                 <xpath expr="//page[@name='internal_notes']" position="before">
                     <page name="business_info" string="Business Information">
                         <group name="business_related_information" string="Transactional Information">
-                            <group>
-                                <field name="monthly_quantity" />
-                                <field name="current_quantity" />
-                                    <field name="target_price" invisible="customer_type == 'seller'"/>
-                                    <field name="fob_price" invisible="customer_type == 'buyer'"/>
-                            </group>
-                            <group>
-                                <field name="loading_port" />
-                                <field name="loading_weight" />
-                            </group>
+                            <field name="business_info_ids" nolabel="1" colspan="2">
+                                <tree create="false" delete="false">
+                                    <field name="loading_port" />
+                                    <field name="monthly_quantity" />
+                                    <field name="current_quantity" />
+                                    <field name="loading_weight" />
+                                    <field name="target_price"/>
+                                    <field name="fob_price"/>
+                                </tree>
+                            </field>
                         </group>
                         <group name="product_info" string="Product Information">
                             <field name="product_ids" nolabel="1" colspan="2">
@@ -45,6 +39,23 @@
                                     <field name="sub_categ_id" />
                                     <field name="child_categ_id" optional="hide"/>
                                     <field name="sub_child_categ_id" optional="hide"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </page>
+                    <page name="offer_code_info" string="Offer Code Information" invisible="customer_type == 'buyer'">
+                        <group>
+                            <field name="seller_offer_code_ids" nolabel="1" colspan="2">
+                                <tree>
+                                    <field name="supplier_code" widget="badge"/>
+                                    <field name="offer_code" widget="badge"/>
+                                    <field name="product_id" />
+                                    <field name="category" />
+                                    <field name="form" />
+                                    <field name="sub_categ" />
+                                    <field name="monthly_quantity" />
+                                    <field name="loading_weight"/>
+                                    <field name="continent" optional="hide"/>
                                 </tree>
                             </field>
                         </group>

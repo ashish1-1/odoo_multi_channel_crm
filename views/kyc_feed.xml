@@ -120,21 +120,21 @@
                         </div>
                         
                         <notebook>
-                            <page name="business_info" string="Business Information">
-                                <group name="product_info">
-                                    <group string="Transactional Information">
-                                        <field name="loading_port" />
-                                        <field name="monthly_quantity" />
-                                        <field name="current_quantity" />
-                                        <field name="loading_weight" />
-                                        <field name="target_price" invisible="customer_type == 'seller'"/>
-                                        <field name="fob_price" invisible="customer_type == 'buyer'"/>
-                                    </group>
-                                    <group string="Product Information">
-                                        <field name="products_list" />
-                                        <field name="category" />
-                                        <field name="forms" />
-                                    </group>
+                            <page name="information" string="Business Information">
+                                <group>
+                                    <field name="business_info_ids" nolabel="1" colspan="2">
+                                        <tree create="false">
+                                            <field name="product" />
+                                            <field name="category" />
+                                            <field name="forms" />
+                                            <field name="loading_port" />
+                                            <field name="monthly_quantity" />
+                                            <field name="current_quantity" />
+                                            <field name="loading_weight" />
+                                            <field name="target_price"/>
+                                            <field name="fob_price"/>
+                                        </tree>
+                                    </field>
                                 </group>
                             </page>
                             <page name="kyc_info" string="Customer Information">
@@ -155,12 +155,6 @@
                                         <field name="country" />
                                         <field name="website_link" />
                                     </group>
-                                </group>
-                            </page>
-                            <page name="information" string="Information">
-                                <group>
-                                    <field name="business_info_ids" nolabel="1" colspan="2">
-                                    </field>
                                 </group>
                             </page>
                         </notebook>

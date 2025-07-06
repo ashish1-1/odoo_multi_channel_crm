@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- <record id="email_template_auto_offer" model="mail.template">
+            <field name="name">Auto Buyer Offer Email</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="subject">{{object.prepare_offer_email_for_buyer().get('subject')}}</field>
+            <field name="email_from">{{(user.email or 'noreply@example.com')}}</field>
+            <field name="email_to">{{object.email_from}}</field>
+            <field name="body_html" type="html">
+                <t t-set="multiple_carrier_tracking" t-value="object._build_html_offer_email(object.get_matching_seller_offers())"/>
+                <t t-if="multiple_carrier_tracking">
+                    <t t-out="multiple_carrier_tracking"></t>
+                </t>                    
+            </field>
+            <field name="auto_delete" eval="False"/>
+        </record> -->
+
+        <!-- <record id="mail.mail_notification_layout" model="mail.template">
+            <field name="body_html">Hello</field>
+        </record> -->
+
+        <template id="mail_notification_layout_inherit_kyc_feed" inherit_id="mail.mail_notification_layout">
+            <xpath expr="//table[@role='presentation']" position="attributes">
+                <attribute name="t-if">not from_kyc_feed</attribute>
+            </xpath>
+            <xpath expr="//b[@t-out='company.name']/.." position="attributes">
+                <attribute name="t-if">not from_kyc_feed</attribute>
+            </xpath>
+        </template>
+    </data>
+</odoo>

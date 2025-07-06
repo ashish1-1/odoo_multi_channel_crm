@@ -9,13 +9,3 @@ class ProductTemplate(models.Model):
     child_categ_id = fields.Many2one(string='Child Category', comodel_name='child.categ' , domain="[('sub_categ_id', '=', sub_categ_id )]")
     sub_child_categ_id = fields.Many2one(string='Sub Child Category', comodel_name='sub.child.categ')
     forms_id = fields.Many2one(string='Forms', comodel_name='form.form', domain="[('sub_categ_id', '=', sub_categ_id )]")
-
-
-class CrmProductTags(models.Model):
-    _name = "crm.product.tags"
-    _description = "Crm Product Tags"
-
-    name = fields.Char(string='Name')
-    color = fields.Integer(string='Color')
-
-    product_temp_id = fields.Many2one(string='Product', comodel_name='product.template')
