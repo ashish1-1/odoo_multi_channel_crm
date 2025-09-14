@@ -61,6 +61,7 @@
                                 <group name="default_confi">
                                     <group>
                                         <field name="auto_evaluate" />
+                                        <field name="user_message_count_attempt" />
                                     </group>
                                     <group>
                                         <field name="auto_reply" />

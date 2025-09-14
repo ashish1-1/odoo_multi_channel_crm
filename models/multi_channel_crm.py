@@ -33,6 +33,7 @@ class MultiChannelCrm(models.Model):
     refresh_token = fields.Char(string='Refresh Token')
     redirect_url = fields.Char(string='Redirect URL', compute='_compute_redirect_url', readonly=True, copy=False)
     callback_url = fields.Char(string="Callback URL", compute='_compute_callback_url', readonly=True, copy=False)
+    user_message_count_attempt = fields.Integer(string="User Message Count")
     
     @api.model_create_multi
     def create(self, vals_list):
