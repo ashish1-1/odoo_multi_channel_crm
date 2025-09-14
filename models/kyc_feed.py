@@ -210,8 +210,8 @@ class Feed(models.Model):
             self.message_post(body=Markup(f"<pre>{response_msg}</pre>"), author_id=odoobot.id)
             self.write(values)
             
-            # if self.user_msg_count + 1 > 6 and not self.is_kyc_complete:
-            #     self.kyc_state = "error"
+            if self.channel_id.user_message_count_attempt and self.user_msg_count + 1 > self.channel_id.user_message_count_attempt and not self.is_kyc_complete:
+                self.kyc_state = "error"
 
             if self.is_kyc_complete and self.channel_id.auto_evaluate:
                 self.feed_evaluate()
