@@ -1,10 +1,11 @@
 import logging, requests
+from odoo.api import Environment
 _logger = logging.getLogger(__name__)
 from .ai_msg_clasification.msg_classification import process_message
 
 class FacebookApi:
     
-    def __init__(self, channel,channel_id, access_token, api_key, secret_key, fb_page_id):
+    def __init__(self, env:Environment, channel,channel_id, access_token, api_key, secret_key, fb_page_id):
         self.channel = channel
         self.channel_id = channel_id
         self.insta_app_id = api_key
@@ -13,6 +14,7 @@ class FacebookApi:
         self.fb_page_id = fb_page_id
         self.version = "v22.0"
         self.base_url = "https://graph.facebook.com"
+        self.env = env
 
     def handle_message(self, data):
         if not data:
@@ -55,7 +57,8 @@ class FacebookApi:
 From : Comment
 {message}
 """
-                    response_msg = process_message(message, from_id, False, self.channel_id)
+                    _logger.info(f"@@@@@@@@@ FaceBook : {message}")
+                    response_msg = process_message(self.env, message, from_id, False, self.channel_id)
                     if not response_msg:
                         _logger.error("NO AI REPONSE FOUND")
                         return False
@@ -80,7 +83,7 @@ From : Comment
         if not message:
             _logger.error("NO INCOMING MESSAGE FOUND")
         msg_body = message.get('text')
-        response_msg = process_message(msg_body, sender_id, False, self.channel_id)
+        response_msg = process_message(self.env, msg_body, sender_id, False, self.channel_id)
         if not response_msg:
             _logger.error("NO AI REPONSE FOUND")
             return False

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-   <data noupdate="1">
+   <data noupdate="0">
        <record id="setup_gmail_watch_topic" model="ir.cron">
            <field name="name">Setup Gmail Watch Topic</field>
            <field name="model_id" ref="model_multi_channel_crm"/>
@@ -9,7 +9,7 @@
            <field name="code">model.setup_gmail_watch_topic(True)</field>
            <field name="user_id" ref="base.user_root"/>
            <field name="numbercall">-1</field>
-           <field name='interval_number'>5</field>
+           <field name='interval_number'>1</field>
            <field name='interval_type'>days</field>
        </record>
        <record id="gmail_token_refresh" model="ir.cron">
@@ -20,7 +20,7 @@
            <field name="code">model.test_gmail_connection()</field>
            <field name="user_id" ref="base.user_root"/>
            <field name="numbercall">-1</field>
-           <field name='interval_number'>30</field>
+           <field name='interval_number'>20</field>
            <field name='interval_type'>minutes</field>
        </record>
        <record id="gmail_webhook_log_unlink" model="ir.cron">
@@ -44,6 +44,17 @@
            <field name="numbercall">-1</field>
            <field name='interval_number'>1</field>
            <field name='interval_type'>months</field>
+       </record>
+       <record id="process_gmail_webhook_msg" model="ir.cron">
+           <field name="name">Gmail Webhook Message Process</field>
+           <field name="model_id" ref="model_multi_channel_crm"/>
+           <field name="active" eval="True"/>
+           <field name="state">code</field>
+           <field name="code">model.process_gmail_webhook_msg(env)</field>
+           <field name="user_id" ref="base.user_root"/>
+           <field name="numbercall">-1</field>
+           <field name='interval_number'>1</field>
+           <field name='interval_type'>minutes</field>
        </record>
    </data>
 </odoo>

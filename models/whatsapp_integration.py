@@ -30,7 +30,8 @@ class WhatsAppIntegaration(models.Model):
         phone_number_id = self.phone_number_id
         account_uid = self.account_uid
         app_uid = self.app_uid
-        return WhatsAppApi(channel, channel_id, access_token, phone_number_id, app_uid, account_uid)
+        env = self.env
+        return WhatsAppApi(env, channel, channel_id, access_token, phone_number_id, app_uid, account_uid)
 
     def test_whatsapp_connection(self):
         """ Test connection of the WhatsApp Business Account. with the given credentials.

@@ -23,7 +23,7 @@
         'views/res_partner_view.xml',
         'views/product_template_views.xml',
         'views/category_model_views.xml',
-        # 'data/email_offer_template_views.xml',
+        'views/ai_agent_views.xml',
         'data/ir_cron_data.xml',
         'data/ir_sequence.xml',
         'views/menu.xml',

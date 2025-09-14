@@ -25,4 +25,11 @@ class BusinessInformation(models.Model):
         string='Lead',
         comodel_name='crm.lead',
     )
+
+    product_id = fields.Many2one(
+        string='Product',
+        comodel_name='product.template',
+    )
     
+    sub_category = fields.Char(string="Sub Category")
+    child_category = fields.Char(string="Child Category")

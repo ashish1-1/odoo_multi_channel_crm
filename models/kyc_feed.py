@@ -1,8 +1,12 @@
 import logging
+_logger = logging.getLogger(__name__)
+
 import json
 from markupsafe import Markup
 from odoo import models, fields, api, _, Command
 from odoo.exceptions import UserError
+from odoo.tools import html2plaintext
+
 
 from ..ai_msg_clasification.msg_classification import process_message
 from ..ai_msg_clasification.small_ai_queries import process_query
@@ -55,10 +59,6 @@ class Feed(models.Model):
         index=True,
     )
     
-    msg_contents_history = fields.Json(
-        string="WhatsApp Msg Content"
-    )
-    
     user_msg_count = fields.Integer(
         string='user_msg_count',
         default=0,
@@ -74,6 +74,8 @@ class Feed(models.Model):
         string='is_ready_for_lead_creation',
         compute='_compute_is_ready_for_lead_creation'
     )
+
+    remark = fields.Html(string='Remark', default="")
         
         
     @api.depends('is_kyc_complete', 'business_info_ids')
@@ -95,6 +97,7 @@ class Feed(models.Model):
     def _compute_is_kyc_complete(self):
         for record in self:
             record.is_kyc_complete = False
+            business_info_ids = record.business_info_ids
             if (
                 record.name
                 and record.company_name
@@ -102,25 +105,75 @@ class Feed(models.Model):
                 and record.phone
                 and record.country
                 and record.customer_type
-                and record.business_info_ids
+                and business_info_ids
             ):
 
                 if record.customer_type == 'buyer':
-                    valid_lines = record.business_info_ids.filtered(
-                        lambda l: l.loading_port and l.current_quantity
+                    valid_lines = business_info_ids.filtered(
+                        lambda l: l.loading_port
                     )
                 elif record.customer_type == 'seller':
-                    valid_lines = record.business_info_ids.filtered(
-                        lambda l: l.loading_port and l.monthly_quantity and l.current_quantity and l.fob_price
+                    valid_lines = business_info_ids.filtered(
+                        lambda l: l.loading_port and l.loading_weight and l.current_quantity
                         )
                 else:
-                    valid_lines = record.business_info_ids.browse([])
+                    valid_lines = business_info_ids.browse([])
 
-                if len(valid_lines) == len(record.business_info_ids):
-                    record.is_kyc_complete = True
-                    customer_type_label = dict(record._fields['customer_type'].selection).get(record.customer_type)
-                    product_names = ", ".join(valid_lines.mapped("product"))
-                    record.lead_name = product_names + " / " + customer_type_label
+                if len(valid_lines) == len(business_info_ids):
+
+                    # Check For Product Exist In Odoo:
+                    is_products_exist = self.is_products_exist(business_info_ids)
+                    if is_products_exist:
+                        record.is_kyc_complete = True
+                        customer_type_label = dict(record._fields['customer_type'].selection).get(record.customer_type)
+                        product_names = ", ".join(valid_lines.mapped("product"))
+                        record.lead_name = product_names + " / " + customer_type_label
+
+    def is_products_exist(self, business_info_ids):
+        Product = self.env["product.template"]
+        remarks = []
+        success = True
+
+        for line in business_info_ids:
+            domain = []
+
+            # Start with product name / code
+            if line.product:
+                domain = ["|", ("name", "=", line.product), ("default_code", "=", line.product)]
+
+            # Add forms if present
+            if line.forms:
+                domain = ["&"] + domain + [("forms_id.name", "ilike", line.forms)]
+
+            # Add category filters if present
+            if line.sub_category:
+                domain = ["|"] + domain + [("sub_categ_id.name", "ilike", line.sub_category)]
+            if line.child_category:
+                domain = ["|"] + domain + [("child_categ_id.name", "ilike", line.child_category)]
+
+            # Search product
+            match = Product.search(domain, limit=1)
+
+            # If not found, try AI synonyms
+            if not match and line.product:
+                query, SI = self.get_query_to_fetch_alternate_products_names(line.product)
+                AI_VALUES = process_query(self.env, query, SI)
+                domain = ["|", ("name", "in", AI_VALUES), ("default_code", "in", AI_VALUES)]
+                if line.forms:
+                    domain = ["&"] + domain + [("forms_id.name", "ilike", line.forms)]
+                match = Product.search(domain, limit=1)
+
+            if match:
+                line.product_id = match.id  # link business.info → product
+            else:
+                remarks.append(f"Product not found: {line.product or 'N/A'}")
+                success = False
+
+        if not success:
+            self.remark = "<br/>".join(remarks)
+
+        return success
+
 
     def update_kyc_feed(self, response, msg=False, **args):
         try:
@@ -128,7 +181,7 @@ class Feed(models.Model):
 
             if not response_msg:
                 limit = args.pop("limit") + 1
-                return process_message(msg, limit=limit, **args)
+                return process_message(self.env, msg, limit=limit, **args)
 
             personal_information = response.get("customer_details", {})
             product_details = response.get("product_details", [])
@@ -140,7 +193,7 @@ class Feed(models.Model):
             if not self.customer_type and response.get("customer_type", False):
                 values["customer_type"] = response.get("customer_type")
 
-            for field in REQUIRED_KYC_FIELDS[2::]:
+            for field in REQUIRED_KYC_FIELDS[1::]:
                 if not self[field] and personal_information.get(field, False):
                     values[field] = personal_information.get(field)
 
@@ -152,50 +205,92 @@ class Feed(models.Model):
 
             values["business_info_ids"] = [Command.create(vals) for vals in product_details]
 
-            self.message_post(body=Markup(f"<pre>{msg}</pre>"))
+            user = self.env.ref("base.user_admin").partner_id
+            self.message_post(body=Markup(f"<pre>{msg}</pre>"), author_id=user.id)
             self.message_post(body=Markup(f"<pre>{response_msg}</pre>"), author_id=odoobot.id)
-            values["msg_contents_history"] = self.update_msg_history(msg, response)
             self.write(values)
             
-            if self.user_msg_count + 1 > 6 and not self.is_kyc_complete:
-                self.kyc_state = "error"
+            # if self.user_msg_count + 1 > 6 and not self.is_kyc_complete:
+            #     self.kyc_state = "error"
 
             if self.is_kyc_complete and self.channel_id.auto_evaluate:
                 self.feed_evaluate()
             
             return response_msg
         except Exception as e:
-            logging.error(f"Updaing kyc feed failed: {e}")
+            logging.error(f"Updaing kyc feed failed: {e}", exc_info=True)
             return "Failed to process your Information. \nWe will get back to you soon."
 
-    def update_msg_history(self, msg, response):
-        content_list = self.msg_contents_history or []
+    def _retrieve_chat_history(self, no_messages=20):
+        result = self.retrieve_chat_history()
+        # odooBootId = self.env.ref('base.partner_root')
+        # chat_history = [
+        #     {
+        #         'role': 'assistant' if message.author_id.id == odooBootId.id else 'user',
+        #         'content': html2plaintext(message.body or '')
+        #     }
+        #     for message in self.message_ids[:no_messages]
+        # ]
 
-        content_list += [
-            {"user": msg},
-            {"model": json.dumps(response)},
-        ]
+        return f"##Context information:\n\n{result}"
 
-        return content_list
+    def retrieve_chat_history(self):
+        self.ensure_one()  # Optional: use only if called on a single record
+        result = []
+        for rec in self:
+            customer_details = {
+                "name": rec.name,
+                "company_name": rec.company_name,
+                "email": rec.email,
+                "isd_code": rec.isd_code,
+                "phone": rec.phone,
+                "address": rec.address,
+                "city": rec.city,
+                "state": rec.state,
+                "country": rec.country,
+                "website_link": rec.website_link,
+                "customer_language": rec.customer_language,
+                "continent": rec.continent,
+                "country_language": rec.country_language,
+            }
+            product_details = [{
+                "product": info.product,
+                "loading_port": info.loading_port,
+                "monthly_quantity": info.monthly_quantity,
+                "current_quantity": info.current_quantity,
+                "loading_weight": info.loading_weight,
+                "target_price": info.target_price,
+                "fob_price": info.fob_price,
+                "category": info.category,
+                "forms": info.forms,
+            } for info in rec.business_info_ids]
+            result.append({
+                "customer_type": rec.customer_type,
+                "customer_details": customer_details,
+                "product_details": product_details,
+            })
+        return result
 
     def feed_evaluate(self):
         contact_mapping = self.env['channel.contact.mapping']
         lead_mapping = self.env['channel.lead.mapping']
+        message = ""
         for rec in self:
             if not rec.lead_name:
+                message += "## Lead Name Missing"
                 raise UserError("Lead Name Missing")
 
             partner = self.env['res.partner']
             match = rec.match_partner()
             if match:
-                partner = match.partner_id
-            print("Partner Matched :",partner)
+                partner = match
+            _logger.info("Partner Matched :",partner)
             if not partner:
                 partner_vals = {
                     'name':rec.name,
                     'email':rec.email,
                     'website':rec.website_link,
-                    'phone':rec.isd_code + rec.phone,
+                    'phone':rec.isd_code + rec.phone if rec.isd_code and rec.phone else rec.phone,
                     'crm_phone':rec.phone,
                     'company_name': rec.company_name,
                     'street':rec.address,
@@ -206,6 +301,7 @@ class Feed(models.Model):
                 partner = self.env['res.partner'].create(partner_vals)
                 contact_mapping.create({'partner_id':partner.id, 'store_partner_id':partner.company_name, 'channel_id':rec.channel_id.id})
             if not partner:
+                message += "<br/>## No Partner Found"
                 return UserError("No Partner Found")
             lead_vals = {
                     'name':rec.lead_name,
@@ -214,11 +310,12 @@ class Feed(models.Model):
                     'channel_id':rec.channel_id.id,
                     'continent':rec.continent,
                 }
+            if message:
+                rec.remark = message
 
-            products = rec.business_info_ids.mapped('product')
-            forms = rec.business_info_ids.mapped('forms')
+            products = rec.business_info_ids.mapped('product_id')
 
-            products_list = self.get_product(products, forms)
+            products_list = self.get_product(products)
 
             if not products_list:
                 return False
@@ -231,7 +328,7 @@ class Feed(models.Model):
                 })
 
                 lead = self.env['crm.lead'].create(lead_data)
-                matched_lines = rec.business_info_ids.filtered(lambda l: self._is_product_match(l.product, prod_ids))
+                matched_lines = rec.business_info_ids.filtered(lambda line: line.product_id.id in prod_ids)
                 matched_lines.write({'lead_id': lead.id})
 
                 if rec.customer_type == 'seller':
@@ -239,8 +336,6 @@ class Feed(models.Model):
                     if supplier_code:
                         lead.generate_offer_codes()
                 else:
-                    # template = self.env.ref('odoo_multi_channel_crm.email_template_auto_offer')
-                    # template.send_mail(lead.id, force_send=True)
                     offers_data = lead.get_matching_seller_offers()
                     if offers_data:
                         email_content = lead.prepare_offer_email_for_buyer(offers_data)
@@ -263,73 +358,20 @@ class Feed(models.Model):
             if not rec.kyc_state == 'done':
                 rec.kyc_state = 'done'
 
-    def _is_product_match(self, product_name, prod_ids):
-        Product = self.env['product.template']
-        product = Product.search([
-            '|', ('name', 'ilike', product_name), ('default_code', 'ilike', product_name),
-            ('id', 'in', prod_ids)
-        ], limit=1)
-        return bool(product)
-
-    def get_product(self, products, forms):
+    def get_product(self, products):
         product_ids = {}
         if not (products):
             return product_ids
-        product_obj = self.env['product.template']
-        if forms:
-            product_form_pairs = list(zip(products, forms)) # e.g.,: [('HDPE', 'Regrind'), ('PE', 'Flake')]
+        for product in products:
+            user_id = product.crm_categ_id.user_id.id
+            if not user_id:
+                continue
 
-            for product, form in product_form_pairs:
-                domain = ["|", ("name", "ilike", product), ("default_code", "ilike", product),("forms_id.name", "ilike", form)]
-                match = product_obj.search(domain, limit=1)
-                if not match:
-                    # GET DOMAIN VALUE FROM AI WITH DFFERENT VALUES e.g., ['P1','P2',....]
-                    query, SI = self.get_query_to_fetch_alternate_products_names(product)
-                    AI_VALUES = process_query(query, SI)
-                    domain = ["|", ("name", "in", AI_VALUES), ("default_code", "in", AI_VALUES), ("forms_id.name", "ilike", form)]
-                    match = product_obj.search(domain, limit=1)
+            if user_id not in product_ids:
+                product_ids[user_id] = [product.id]
+            else:
+                product_ids[user_id].append(product.id)
 
-                if not match:
-                    domain = ["|", ("name", "ilike", product), ("default_code", "ilike", product)]
-                    match = product_obj.search(domain, limit=1)
-                    if not match:
-                        domain = ["|", ("name", "in", AI_VALUES), ("default_code", "in", AI_VALUES)]
-                        match = product_obj.search(domain, limit=1)
-
-                if not match:
-                    return {}
-
-                user_id = match.crm_categ_id.user_id.id
-                if not user_id:
-                    continue
-
-                if user_id not in product_ids:
-                    product_ids[user_id] = [match.id]
-                else:
-                    product_ids[user_id].append(match.id)
-            
-        else:
-            for product in products:
-                domain = ["|", ("name", "ilike", product), ("default_code", "ilike", product)]
-                match = product_obj.search(domain, limit=1)
-                if not match:
-                    # GET DOMAIN VALUE FROM AI WITH DFFERENT VALUES e.g., ['P1','P2',....]
-                    query, SI = self.get_query_to_fetch_alternate_products_names(product)
-                    AI_VALUES = process_query(query, SI)
-                    domain = ["|", ("name", "in", AI_VALUES), ("default_code", "in", AI_VALUES)]
-                    match = product_obj.search(domain, limit=1)
-
-                if not match:
-                    return {}
-
-                user_id = match.crm_categ_id.user_id.id
-                if not user_id:
-                    continue
-
-                if user_id not in product_ids:
-                    product_ids[user_id] = [match.id]
-                else:
-                    product_ids[user_id].append(match.id)
         return product_ids
 
     def match_partner(self):
@@ -340,7 +382,7 @@ class Feed(models.Model):
         if self.company_name:
             match = contact_mapping.search([("store_partner_id", "ilike", self.company_name)], limit=1)
             if match:
-                return match
+                return match.partner_id
 
         # Step 2: Check in res.partner with multiple fallback fields
         domain_parts = []

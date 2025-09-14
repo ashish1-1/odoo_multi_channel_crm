@@ -1,10 +1,11 @@
 import logging, requests
+from odoo.api import Environment
 from .ai_msg_clasification.msg_classification import process_message
 _logger = logging.getLogger(__name__)
 
 class InstagramApi:
     
-    def __init__(self, channel,channel_id, access_token, api_key, secret_key, ig_account):
+    def __init__(self, env:Environment, channel,channel_id, access_token, api_key, secret_key, ig_account):
         self.channel = channel
         self.channel_id = channel_id
         self.insta_app_id = api_key
@@ -13,6 +14,7 @@ class InstagramApi:
         self.ig_account = ig_account
         self.version = "v22.0"
         self.base_url = "https://graph.instagram.com"
+        self.env = env
 
     def handle_message(self, data):
         """
@@ -64,7 +66,7 @@ class InstagramApi:
 From : Comment
 {text}
 """
-                response_msg = process_message(text, from_id, False, self.channel_id)
+                response_msg = process_message(self.env, text, from_id, False, self.channel_id)
                 if not response_msg:
                     _logger.error("NO AI REPONSE FOUND")
                     return False
@@ -89,7 +91,7 @@ From : Comment
         if not message:
             _logger.error("NO INCOMING MESSAGE FOUND")
         msg_body = message.get('text')
-        response_msg = process_message(msg_body, sender_id, False, self.channel_id)
+        response_msg = process_message(self.env, msg_body, sender_id, False, self.channel_id)
         if not response_msg:
             _logger.error("NO AI REPONSE FOUND")
             return False

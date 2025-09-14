@@ -1,12 +1,13 @@
 import logging, json, re, requests
 from odoo.http import request
+from odoo.api import Environment
 from .ai_msg_clasification.msg_classification import process_message
 from odoo.exceptions import UserError
 
 DEFAULT_ENDPOINT = "https://graph.facebook.com"
 
 class WhatsAppApi:
-    def __init__(self, channel,channel_id, access_token, phone_number_id, app_uid, account_uid):
+    def __init__(self,env:Environment, channel,channel_id, access_token, phone_number_id, app_uid, account_uid):
         self.channel = channel
         self.channel_id = channel_id
         self.access_token = access_token
@@ -14,6 +15,7 @@ class WhatsAppApi:
         self.phone_number_id = phone_number_id
         self.app_uid = app_uid
         self.account_uid = account_uid
+        self.env = env
 
 
     def handle_message(self, body):
@@ -73,7 +75,7 @@ class WhatsAppApi:
         message_body = message["text"]["body"]
 
         # AI Integration
-        response_msg = process_message(message_body, wa_id, name, self.channel_id)
+        response_msg = process_message(self.env, message_body, wa_id, name, self.channel_id)
 
         data = self.get_text_message_input(wa_id, response_msg)
         if self.channel.auto_reply:
@@ -94,15 +96,16 @@ class WhatsAppApi:
         return whatsapp_style_text
 
     def get_text_message_input(self, recipient, text):
-        return json.dumps(
-            {
-                "messaging_product": "whatsapp",
-                "recipient_type": "individual",
-                "to": recipient,
-                "type": "text",
-                "text": {"preview_url": False, "body": text},
+        return {
+            "messaging_product": "whatsapp",
+            "recipient_type": "individual",
+            "to": recipient,
+            "type": "text",
+            "text": {
+                "preview_url": False,
+                "body": text
             }
-        )
+        }
 
 
     def send_message(self, data):
@@ -113,7 +116,7 @@ class WhatsAppApi:
         url = f"https://graph.facebook.com/{self.version}/{self.phone_number_id}/messages"
         try:
             response = requests.post(
-                url, data=data, headers=headers, timeout=10
+                url, json=data, headers=headers, timeout=10
             )  # 10 seconds timeout as an example
             response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
         except requests.Timeout:

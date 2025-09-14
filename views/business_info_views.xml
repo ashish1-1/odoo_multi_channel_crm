@@ -37,8 +37,11 @@
                                 <field name="lead_id" groups="base.group_no_one" readonly="0"/>
                             </group>
                             <group string="Product Information">
+                                <field name="product_id" />
                                 <field name="product" />
                                 <field name="category" />
+                                <field name="sub_category" />
+                                <field name="child_category" />
                                 <field name="forms" />
                             </group>
                         </group>

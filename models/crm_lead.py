@@ -1,6 +1,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 from markupsafe import Markup
+from datetime import timedelta
 
 
 class CrmLead(models.Model):
@@ -16,6 +17,42 @@ class CrmLead(models.Model):
     continent = fields.Char(string="Continent")
 
     supplier_code = fields.Char(string="Supplier Code")
+
+    primary_crm_category_id = fields.Many2one(
+        'categ.categ', string="Primary Product Category",
+        compute="_compute_primary_crm_category",store=True
+    )
+
+    lead_period = fields.Selection(
+        selection=[
+            ('today', 'Today'),
+            ('last_7_days', 'Last 7 Days'),
+            ('this_month', 'This Month'),
+            ('older', 'Older'),
+        ],
+        string="Lead Created Period",
+        compute='_compute_lead_period',
+        store=True
+    )
+
+    @api.depends('product_ids.crm_categ_id')
+    def _compute_primary_crm_category(self):
+        for rec in self:
+            rec.primary_crm_category_id = (
+                rec.product_ids and rec.product_ids[0].crm_categ_id or False
+            )
+    @api.depends('create_date')
+    def _compute_lead_period(self):
+        today = fields.Date.today()
+        for lead in self:
+            if lead.create_date.date() == today:
+                lead.lead_period = 'today'
+            elif lead.create_date.date() >= today - timedelta(days=7):
+                lead.lead_period = 'last_7_days'
+            elif lead.create_date.month == today.month and lead.create_date.year == today.year:
+                lead.lead_period = 'this_month'
+            else:
+                lead.lead_period = 'older'
 
     def generate_supplier_code(self):
         self.ensure_one()
@@ -56,7 +93,10 @@ class CrmLead(models.Model):
 
             # Try to fetch monthly quantity, weight from business_info_ids by product match
             related_info = self.business_info_ids.filtered(
-                lambda b: b.product and b.product.lower() in [product.name.lower(), product.default_code.lower()]
+                lambda b: b.product and (
+                    (product.name and b.product.lower() in product.name.lower()) or
+                    (product.default_code and b.product.lower() in product.default_code.lower())
+                )
             )
             monthly_quantity = related_info[0].monthly_quantity if related_info else ''
             loading_weight = related_info[0].loading_weight if related_info else ''

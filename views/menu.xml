@@ -60,6 +60,13 @@
                     action="odoo_multi_channel_crm_config_settings_action" 
                     groups="base.group_system" 
                     sequence="10"/>
+                <menuitem 
+                    id="ai_agetn_menu" 
+                    name="AI Agent" 
+                    parent="odoo_multi_channel_crm_menu_configuration" 
+                    action="ai_agent_view_action" 
+                    groups="base.group_system" 
+                    sequence="20"/>
 
             <!-- CORE MENU INHERIT -->
             <menuitem id="product_menu_crm"

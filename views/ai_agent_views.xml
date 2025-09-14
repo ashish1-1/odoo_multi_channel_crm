@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="ai_agent_view_tree" model="ir.ui.view">
+            <field name="name">ai_agent.view.tree</field>
+            <field name="model">ai.agent</field>
+            <field name="arch" type="xml">
+                <tree string="">
+                    <field name="name" />
+                    <field name="response_style" />
+                    <field name="llm_model" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="ai_agent_view_form" model="ir.ui.view">
+            <field name="name">ai_agent.view.form</field>
+            <field name="model">ai.agent</field>
+            <field name="arch" type="xml">
+                <form string="">
+                    <sheet>
+                        <div class="oe_title">
+                            <b><label for="name" string="Agent Name :"/></b>
+                            <h1>
+                                <field
+                                    name       ="name"
+                                    placeholder="Agent Name"
+                                />
+                            </h1>
+                        </div>
+
+                        <group>
+                            <group>
+                                <field name="response_style"/>
+                                <field name="ai_model"/>
+                                <field name="llm_model"/>
+                            </group>
+                            <group>
+                                <field name="api_key"/>
+                            </group>
+                        </group>
+                        <notebook colspan="2">
+                            <page string="System Prompt" name="system_prompt">
+                                <field name="system_prompt"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="ai_agent_view_action" model="ir.actions.act_window">
+            <field name="name">AI Agent</field>
+            <field name="res_model">ai.agent</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="ai_agent_view_tree"/>
+        </record>
+
+    </data>
+</odoo>

@@ -3,6 +3,7 @@ from odoo.http import request
 from urllib.parse import urlencode
 from odoo.exceptions import UserError
 from ..gmail_api import GmailApi
+from odoo.api import Environment
 import requests
 
 import logging
@@ -90,7 +91,8 @@ class GmailIntegration(models.Model):
         }
         payload =  {
         "topicName": self.topic,
-        "labelIds": ["INBOX"]
+        "labelIds": ["INBOX"],
+        'labelFilterBehavior': 'INCLUDE'
         }
         try:
             response = requests.post(url=url, headers=header, json=payload)
@@ -125,3 +127,50 @@ class GmailIntegration(models.Model):
         channel_id = self.id
         access_token = self.access_token
         return GmailApi(channel, channel_id, access_token)
+
+    def process_gmail_webhook_msg(self, env: Environment):
+        channel = self.env['multi.channel.crm'].search([('state', '=', 'connected'),('channel', '=', 'gmail')], limit=1)
+        if not channel:
+            _logger.warning("No connected channel")
+            return
+
+        if not channel.auto_reply:
+            _logger.warning("Auto Reply Off")
+            return
+
+        # Get draft webhook records
+        records = self.env['gmail.webhook.data'].search([
+            ('state', '=', 'draft')
+        ], order='history_id asc')
+
+        if not records:
+            return
+
+        # Get the lowest unprocessed history_id
+        min_history_id = min(int(r.history_id) for r in records if r.history_id)
+
+        try:
+            gmail_api = channel.get_gmail_api()
+            last_saved_history_id = self.env['ir.config_parameter'].sudo().get_param('odoo_multi_channel_crm.history_id')
+            status, historyID = gmail_api.handle_message(env, min_history_id, last_saved_history_id)
+            if status:
+                self.env['ir.config_parameter'].sudo().set_param('odoo_multi_channel_crm.history_id', historyID)
+                records.write({'state':'done'})
+        except Exception as e:
+            _logger.error(f"Failed to process message: {e}", exc_info=True)
+
+
+class GmailWebhookData(models.Model):
+    _name = 'gmail.webhook.data'
+    _description = 'Gmail Webhook Data'
+
+    msg_json_data = fields.Json(string='Gmail Webhook Data')
+    decode_info = fields.Json(string='Gmail Decode Info')
+    history_id = fields.Char(string='History ID')
+    state = fields.Selection(
+        string='State',
+        default='draft',
+        selection=[('draft', 'Draft'), ('done', 'Done'), ('error', 'Error')]
+    )
+    
+

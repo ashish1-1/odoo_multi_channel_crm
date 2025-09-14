@@ -123,9 +123,12 @@
                             <page name="information" string="Business Information">
                                 <group>
                                     <field name="business_info_ids" nolabel="1" colspan="2">
-                                        <tree create="false">
+                                        <tree create="false" editable="bottom">
+                                            <field name="product_id" string="Odoo Product"/>
                                             <field name="product" />
                                             <field name="category" />
+                                            <field name="sub_category" />
+                                            <field name="child_category" optional="hide"/>
                                             <field name="forms" />
                                             <field name="loading_port" />
                                             <field name="monthly_quantity" />
@@ -156,6 +159,9 @@
                                         <field name="website_link" />
                                     </group>
                                 </group>
+                            </page>
+                            <page name="remark" string="Remark">
+                                <field name="remark" readonly="1"/>
                             </page>
                         </notebook>
                     </sheet>

@@ -64,6 +64,28 @@
             </field>
         </record>
 
+		<record id="view_crm_case_vyom" model="ir.ui.view">
+			<field name="name">crm.lead.search.vyom</field>
+			<field name="model">crm.lead</field>
+			<field name="inherit_id" ref="crm.view_crm_case_opportunities_filter"/>
+			<field name="arch" type="xml">
+
+                <xpath expr="//search/group" position="inside">
+                    <separator/>
+                    <filter string="Continent" name="continent" context="{'group_by':'continent'}"/>
+                </xpath>
+
+				<xpath expr="//search" position="inside">
+					<searchpanel>
+						<field name="customer_type" string="Customer Type" enable_counters="1"/>
+						<field name="channel_id" string="Source" enable_counters="1"/>
+						<field name="primary_crm_category_id" string="Category" enable_counters="1"/>
+                        <field name="lead_period" string="Lead Period" enable_counters="1"/>
+					</searchpanel>
+				</xpath>
+			</field>
+		</record>
+
         <record id="crm_case_kanban_view_leads_crm" model="ir.ui.view">
             <field name="name">crm.opportunity.inherited.kanban.inehrit</field>
             <field name="model">crm.lead</field>

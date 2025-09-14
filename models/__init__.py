@@ -15,3 +15,4 @@ from . import product_template
 from . import res_partner
 from . import business_information
 from . import seller_offer_code
+from . import ai_agent

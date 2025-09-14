@@ -51,41 +51,28 @@ class ChannelWebhook(http.Controller):
             # logging.info(f"-------------------{json_data}")
             if platform == 'whatsapp':
                 whatsapp_api = channel.get_whatsApp_api()
-                return whatsapp_api.handle_message(json_data)
+                whatsapp_api.handle_message(json_data)
+                return http.Response(status=200)
             elif platform == 'gmail':
-                encoded_data = json_data.get('message').get('data')
-                subscription = json_data.get('subscription')
-                if subscription != channel.subscription:
-                    _logger.info("================== Subscription mismatch")
-                    return {"status": "ignored", "reason": "Subscription mismatch"}
-                try:
-                    decoded_data = json.loads(base64.urlsafe_b64decode(encoded_data).decode('utf-8'))
-                except Exception as decode_error:
-                    _logger.exception("Failed to decode Pub/Sub data")
-                    return {"status": "error", "reason": "Failed to decode Pub/Sub data"}
-                
-                # Deduplication check
-                log_model = request.env['gmail.webhook.log'].sudo()
-                if log_model.search([('message_id', '=', encoded_data)], limit=1):
-                    _logger.info("================== DUPLICATE MESSAGE FOUND")
-                    request.env['ir.config_parameter'].sudo().set_param('odoo_multi_channel_crm.history_id', decoded_data.get('historyId', ''))
-                    return {"status": "duplicate", "message_id": encoded_data}
-                query = f"INSERT INTO gmail_webhook_log (message_id) VALUES ('{encoded_data}');"
-                request.env.cr.execute(query)
-                _logger.info(f"===================== Gmail Webhook received")
-                # TODO: Process message here
-                # _logger.info(f"===================== {json.dumps(json_data, indent=4)}")
-                gmail_api = channel.get_gmail_api()
-                res = gmail_api.handle_message(decoded_data)
-                if not res:
-                    _logger.info(f"===================== Gmail Webhook Handle Message Issue")
-                return res
+                result = self.gmail_webhook_process(channel, json_data)
+                if not result.get('status'):
+                    return http.Response(status=500)
+                vals = {
+                    'msg_json_data':json_data,
+                    'decode_info':result.get('decoded_data'),
+                    'history_id':result.get('decoded_data',{}).get('historyId')
+                }
+
+                request.env['gmail.webhook.data'].sudo().create(vals)
+                return http.Response(status=200)
             elif platform == 'instagram':
                 instagram_api = channel.get_instagram_api()
-                return instagram_api.handle_message(json_data)
+                instagram_api.handle_message(json_data)
+                return http.Response(status=200)
             elif platform == 'facebook':
                 facebook_api = channel.get_facebook_api()
-                return facebook_api.handle_message(json_data)
+                facebook_api.handle_message(json_data)
+                return http.Response(status=200)
             else:
                 _logger.info("Unknown platform: %s", platform)
                 _logger.info("json_data: %s", json_data)
@@ -94,3 +81,31 @@ class ChannelWebhook(http.Controller):
         except Exception as e:
             _logger.exception(f"Webhook error occurred : {str(e)}")
             return {"status": "error", "detail": str(e)}
+
+    def gmail_webhook_process(self, channel, json_data):
+        encoded_data = json_data.get('message').get('data')
+        subscription = json_data.get('subscription')
+        message = "Sucessfull process"
+        decoded_data = {}
+        if subscription != channel.subscription:
+            _logger.info("================== Subscription mismatch")
+            return {
+                'status':False,
+                'decoded_data':decoded_data,
+                'message':"Error processing webhook",
+            }
+        try:
+            decoded_data = json.loads(base64.urlsafe_b64decode(encoded_data).decode('utf-8'))
+        except Exception as decode_error:
+            _logger.exception("Failed to decode Pub/Sub data")
+            return {
+                'status':False,
+                'decoded_data':decoded_data,
+                'message':"Failed to decode Pub/Sub data:\n {}".format(str(decode_error)),
+            }
+        _logger.info(f"===================== Gmail Webhook received")
+        return {
+            'status':True,
+            'decoded_data':decoded_data,
+            'message':message,
+        }

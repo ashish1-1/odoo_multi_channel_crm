@@ -70,4 +70,4 @@ class InstagramIntegration(models.Model):
         api_key = self.api_key
         secret_key = self.secret_key
         ig_account = self.ig_account_id
-        return InstagramApi(channel=channel, channel_id=channel_id, access_token=access_token, api_key=api_key, secret_key=secret_key, ig_account=ig_account)
+        return InstagramApi(env=self.env, channel=channel, channel_id=channel_id, access_token=access_token, api_key=api_key, secret_key=secret_key, ig_account=ig_account)

@@ -2,8 +2,9 @@ from odoo import models, fields
 from odoo.http import request
 from werkzeug.urls import url_encode
 from ..facebook_api import FacebookApi
-import requests
-import logging
+from odoo.api import Environment
+import requests, logging
+
 _logger = logging.getLogger(__name__)
 
 
@@ -53,7 +54,7 @@ class FacebookIntegration(models.Model):
         api_key = self.api_key
         secret_key = self.secret_key
         fb_page_id = self.fb_page_id.page_id
-        return FacebookApi(channel=channel, channel_id=channel_id, access_token=access_token, api_key=api_key, secret_key=secret_key, fb_page_id=fb_page_id)
+        return FacebookApi(env=self.env, channel=channel, channel_id=channel_id, access_token=access_token, api_key=api_key, secret_key=secret_key, fb_page_id=fb_page_id)
 
     def get_facebook_page(self):
         url = f"https://graph.facebook.com/v22.0/me/accounts?access_token={self.access_token}"
@@ -94,6 +95,18 @@ class FacebookIntegration(models.Model):
             }
         }
 
+    def process_facebook_webhook_msg(self, env: Environment):
+        channel = self.env['multi.channel.crm'].search([('state', '=', 'connected'),('channel', '=', 'fb')], limit=1)
+        if not channel:
+            _logger.warning("No connected channel")
+            return
+
+        if not channel.auto_reply:
+            _logger.warning("Auto Reply Off")
+            return
+        # facebook_api = channel.get_facebook_api()
+        # return facebook_api.handle_message(json_data)
+        
 class FacebookPage(models.Model):
     _name = "facebook.page"
     _description = "FaceBook Page"

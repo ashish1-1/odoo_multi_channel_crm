@@ -3,7 +3,7 @@ import json
 from openai import OpenAI
 from google import genai
 from google.genai import types
-from odoo.http import request
+from odoo.api import Environment
 
 
 class Queries:
@@ -86,10 +86,9 @@ class Queries:
         else:
             pass
 
-
-def process_query(query, SI):
-    ai_model = request.env['ir.config_parameter'].sudo().get_param('odoo_multi_channel_crm.ai_model')
-    api_key = request.env['ir.config_parameter'].sudo().get_param('odoo_multi_channel_crm.api_key')
+def process_query(env: Environment, query, SI):
+    ai_model = env['ir.config_parameter'].sudo().get_param('odoo_multi_channel_crm.ai_model')
+    api_key = env['ir.config_parameter'].sudo().get_param('odoo_multi_channel_crm.api_key')
 
     mini_queries = Queries(ai_model, api_key)
     return mini_queries.examine_msg(query, SI)
