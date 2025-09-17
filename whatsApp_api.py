@@ -76,9 +76,9 @@ class WhatsAppApi:
 
         # AI Integration
         response_msg = process_message(self.env, message_body, wa_id, name, self.channel_id)
-
+    
         data = self.get_text_message_input(wa_id, response_msg)
-        if self.channel.auto_reply:
+        if self.channel.auto_reply and response_msg:
             self.send_message(data)
             logging.info(f"================= WHATSAPP MESSAGE SEND")
 
