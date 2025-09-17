@@ -332,6 +332,11 @@ def process_message(env: Environment, msg, identification_code=False, name=False
             [('identification_code', 'ilike', identification_code)], limit=1, order='id desc').exists()
         
         if kyc_feed_sudo:
+            partner_record = kyc_feed_sudo.match_partner()
+            if partner_record:
+                if partner_record.stop_conversation:
+                    return
+
             feed_identification_code = kyc_feed_sudo.identification_code.split('-')
             if len(feed_identification_code) > 1:
                 identification_code = "-".join(feed_identification_code[:-1:])
@@ -394,7 +399,7 @@ def process_message(env: Environment, msg, identification_code=False, name=False
                 additional_msg = f"\n\nMy name is {name}.\nmy contact number is +{identification_code}"
                 msg += additional_msg
 
-        if kyc_feed_sudo.kyc_state in ["error", "done"] or kyc_feed_sudo.user_msg_count + 1 > 6:
+        if kyc_feed_sudo.kyc_state in ["error", "done"] or kyc_feed_sudo.user_msg_count + 1 > kyc_feed_sudo.channel_id.user_message_count_attempt:
             return "We will get back to you soon"
 
         msg = channel_name + msg

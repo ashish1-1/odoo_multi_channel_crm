@@ -98,10 +98,11 @@ class GmailApi:
 
                 if parse_message and to_email:
                     response_msg = process_message(env, parse_message, threadId, False, self.channel_id)
-                    send_resp = self.send_email(sender="me", to=to_email, subject=subject, message_text=response_msg, thread_id=threadId, messageId=messageId)
+                    if response_msg:
+                        send_resp = self.send_email(sender="me", to=to_email, subject=subject, message_text=response_msg, thread_id=threadId, messageId=messageId)
 
-                    if not send_resp:
-                        logging.warning(f"Failed to send email reply for message: {message.get('id')}")
+                        if not send_resp:
+                            logging.warning(f"Failed to send email reply for message: {message.get('id')}")
 
         return True, latest_history_id
 

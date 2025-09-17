@@ -296,7 +296,8 @@ class Feed(models.Model):
                     'street':rec.address,
                     'city':rec.city,
                     'country_id':self.get_odoo_country(rec.country),
-                    'state_id':self.get_odoo_state(rec.state)
+                    'state_id':self.get_odoo_state(rec.state),
+                    'stop_conversation': True,
                 }
                 partner = self.env['res.partner'].create(partner_vals)
                 contact_mapping.create({'partner_id':partner.id, 'store_partner_id':partner.company_name, 'channel_id':rec.channel_id.id})

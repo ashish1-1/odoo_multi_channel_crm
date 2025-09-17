@@ -9,6 +9,9 @@
                 <field name="function" position="replace">
                     <field name="crm_phone" />
                 </field>
+                <xpath expr="//field[@name='category_id']" position="after">
+                    <field name="stop_conversation"/>
+                </xpath>
             </field>
         </record>
     </data>
