@@ -192,124 +192,6 @@ class ChatGptAPIService:
         logging.error("Failed to extract valid JSON from response.")
         return {}
 
-
-# def process_message(env, msg, identification_code=False, name=False, channel_id=False, limit=0):
-#     ai_model = env['ir.config_parameter'].sudo().get_param('odoo_multi_channel_crm.ai_model')
-
-#     if not ai_model:
-#         logging.error(f"Complete your Ai configration")
-#         raise UserError(_("Provider Not Found '%s'", ai_model))
-
-#     if identification_code and limit < 3:
-#         additional_msg = ""
-#         postfix = ""
-
-#         channel_sudo = request.env['multi.channel.crm'].sudo().browse(channel_id).exists()
-#         channel_name = f"Channel Name: {dict(channel_sudo._get_channel()).get(channel_sudo.channel)}\n"
-
-#         partner_sudo = request.env['res.partner'].sudo().search(
-#             ['|', ('email', 'ilike', identification_code), ('crm_phone', 'ilike', identification_code)], limit=1
-#         ).exists()
-
-#         kyc_feed_sudo = request.env['kyc.feed'].sudo().search(
-#             [('identification_code', 'ilike', identification_code)], limit=1, order='id desc').exists()
-        
-#         if kyc_feed_sudo:
-#             feed_identification_code = kyc_feed_sudo.identification_code.split('-')
-#             if len(feed_identification_code) > 1:
-#                 identification_code = "-".join(feed_identification_code[:-1:])
-#                 postfix = f"-{int(feed_identification_code[-1]) + 1}"
-#             else:
-#                 postfix = "-1"
-
-#         if not kyc_feed_sudo and not partner_sudo:
-#             gptService = ChatGptAPIService(ai_model)
-#             messages = gptService._prepare_chat_messages(prompt=msg, system_prompt=SYSTEM_INSTRUCTION_FOR_UNIQUE_CODE)
-#             response = gptService.get_completion(
-#                 model="gpt-4.1",
-#                 messages=messages,
-#                 tools=None,
-#                 temperature=0.5,
-#             )
-#             response = gptService.examine_msg(response)
-#             unique_code  = ""
-
-#             if isinstance(response, dict):
-#                 unique_code = response.get('unique_code', False)
-
-#             if unique_code:
-#                 partner_sudo = request.env['res.partner'].sudo().search(
-#                     ['|', '|', '|', '|', '|', ('crm_phone', 'ilike', unique_code), ('email', 'ilike', unique_code), ('website', 'ilike', unique_code), ('website', 'ilike', unique_code), ('phone', 'ilike', unique_code), ('mobile', 'ilike', unique_code)], limit=1
-#                 ).exists()
-
-#                 kyc_feed_sudo = request.env['kyc.feed'].sudo().search(
-#                     [('identification_code', 'ilike', unique_code)], limit=1, order='id desc').exists()
-
-#         if not kyc_feed_sudo or kyc_feed_sudo.kyc_state == 'done' or kyc_feed_sudo.is_ready_for_lead_creation:
-#             partner_fields = ["name", "company_name", "email", "mobile", "street", "city", "state", "country", "website"]
-#             kyc_fields = ["name", "company_name", "email", "isd_code", "phone", "address", "city", "state", "country", "website_link", "continent", "customer_language", "country_language"]
-            
-#             if kyc_feed_sudo:
-#                 for field in kyc_fields:
-#                     additional_msg += f"\n{field} : {kyc_feed_sudo[field]}"
-            
-#             elif partner_sudo:
-#                 for field in partner_fields:
-#                     if field == 'state' and partner_sudo['state_id'].name:
-#                         additional_msg += f"\n{field} : {partner_sudo['state_id'].name}"
-#                     elif field == 'country' and partner_sudo['country_id'].name:
-#                         additional_msg += f"\n{field} : {partner_sudo['country_id'].name}"
-#                     elif field != 'state' and partner_sudo[field]:
-#                         additional_msg += f"\n{field} : {partner_sudo[field]}"
-#                     else:
-#                         pass
-#             else:
-#                 pass
-
-#             msg += additional_msg
-
-#             kyc_feed_sudo = request.env['kyc.feed'].sudo().create({
-#                 "identification_code": identification_code + postfix,
-#                 "channel_id": channel_id
-#             })
-
-#             if channel_sudo and channel_sudo.channel == 'whatsapp' and not additional_msg:
-#                 additional_msg = f"\n\nMy name is {name}.\nmy contact number is +{identification_code}"
-#                 msg += additional_msg
-
-#         if kyc_feed_sudo.kyc_state in ["error", "done"] or kyc_feed_sudo.user_msg_count + 1 > 6:
-#             return "We will get back to you soon"
-
-#         msg = channel_name + msg
-#         gptService = ChatGptAPIService(ai_model)
-#         chat_history = kyc_feed_sudo._retrieve_chat_history() or []
-#         msg = chat_history + "\n"+ msg
-#         messages = gptService._prepare_chat_messages(prompt=msg, system_prompt=SYSTEM_INSTRUCTION)
-#         # full_conversation = chat_history + messages
-#         full_conversation = messages
-#         # _logger.info(full_conversation)
-#         api_response = gptService.get_completion(
-#             model="gpt-4.1",
-#             messages=full_conversation,
-#             tools=None,
-#             temperature=0.5,
-#         )
-#         # _logger.info(api_response)
-#         response = gptService.examine_msg(api_response)
-#         # _logger.info(f"@@@@@@@@@@@@@@@@@@ : AI Response : {json.dumps(response, indent=4)}")
-#         if channel_name:
-#             msg = msg.replace(channel_name, "")
-
-#         if chat_history:
-#             msg = msg.replace(chat_history, "").strip()
-
-#         response_msg = kyc_feed_sudo.update_kyc_feed(response, msg, identification_code=identification_code, name=name, channel_id=channel_id, limit=limit)
-
-#         return response_msg or msg
-
-#     return "Sorry currently out of service!"
-
-
 def process_message(env: Environment, msg, identification_code=False, name=False, channel_id=False, limit=0):
     agent = env['ai.agent'].sudo().search([('active', '=', True)], limit=1)
 
@@ -394,7 +276,7 @@ def process_message(env: Environment, msg, identification_code=False, name=False
                 additional_msg = f"\n\nMy name is {name}.\nmy contact number is +{identification_code}"
                 msg += additional_msg
 
-        if kyc_feed_sudo.kyc_state in ["error", "done"] or kyc_feed_sudo.user_msg_count + 1 > 6:
+        if kyc_feed_sudo.kyc_state in ["error", "done"] or kyc_feed_sudo.user_msg_count + 1 > kyc_feed_sudo.channel_id.user_message_count_attempt:
             return "We will get back to you soon"
 
         msg = channel_name + msg
@@ -420,7 +302,10 @@ def process_message(env: Environment, msg, identification_code=False, name=False
             msg = msg.replace(chat_history, "").strip()
 
         response_msg = kyc_feed_sudo.update_kyc_feed(response, msg, identification_code=identification_code, name=name, channel_id=channel_id, limit=limit)
-
+        partner_record = kyc_feed_sudo.match_partner()
+        if partner_record:
+            if partner_record.stop_conversation:
+                return False
         return response_msg or msg
 
     return "Sorry currently out of service!"
